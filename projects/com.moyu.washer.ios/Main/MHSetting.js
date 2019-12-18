@@ -1,45 +1,47 @@
 'use strict';
+
 import React from 'react';
+
+import { localStrings as LocalStrings } from './MHLocalizableString.js';
+
+import { Device, Package, Host, DeviceEvent } from "miot";
+
+// var WashEdit = require('./WashEdit');
+
 import {
   StyleSheet,
   Text,
   ListView,
   View,
+  Image,
   TouchableHighlight,
   Component,
   StatusBar,
   ScrollView,
-  Button,
+  DeviceEventEmitter,
+  Platform,
+  PixelRatio,
+  Dimensions,
 } from 'react-native';
 
-import MHLocalizableString from '../MHLocalizableString.js';
-import MHGlobal from '../MHGlobalData';
-import { Host, Device, DeviceEvent } from "miot";
+var window = Dimensions.get('window');
+var ratio = window.width / 375;
+var ScreenWidth = window.width;
+var ScreenHeight = window.height;
 
-// var MoreMenu = require('./MoreMenu');
-// import MoreMenu from  './MoreMenu'
-//var BUTTONS = [
-//  '测试对话框',
-//  '确定',
-//];
+import { isIphoneX, ifIphoneX } from 'react-native-iphone-x-helper';
+const APPBAR_HEIGHT = Platform.OS === 'ios' ? 44 : 56;
+const isIPad = ScreenWidth >= 768 ? true : false;
+const iphonexTop = isIphoneX() ? 24 : 0;
 
-export default class Setting extends React.Component {
-  static navigationOptions = ({ navigation }) => {
-    const params = navigation.state.params || {};
+var BUTTONS = [
+  '测试对话框',
+  '确定',
+];
 
-    return {
-      headerTitle: "菜单",
-      headerLeft: (
-        <Button onPress={() => { console.log("back button tapped") }} title="back" color="#ff3454" />
-      ),
-      headerRight: (
-        <Button onPress={() => { navigation.navigate('setting'); }} title="ok" color="#ff3452" />
-      ),
-    };
-  };
-
-  constructor(props) {
-    super(props);
+export default class MHSetting extends React.Component {
+  constructor(props, context) {
+    super(props, context);
     var ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
@@ -47,24 +49,13 @@ export default class Setting extends React.Component {
     this._createMenuData();
 
     this.state = {
+
       dataSource: ds.cloneWithRowsAndSections(this._menuData),
     };
-  }
 
+  }
   componentWillMount () {
-    this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener((device) => {
-      MHGlobal.deviceName = device.name;
-      // this.forceUpdate();
-      var ds = new ListView.DataSource({
-        rowHasChanged: (r1, r2) => r1 !== r2,
-        sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-      });
-      this.setState({
-        dataSource: ds.cloneWithRowsAndSections(this._menuData),
-      });
-    })
   }
-
   componentDidUnMount () {
     this._deviceNameChangedListener.remove();
   }
@@ -72,58 +63,65 @@ export default class Setting extends React.Component {
     var commonMenuData = [];
     var featureMenuData = [];
     var resetMenuData = [];//listView的footerView好像不支持，用一个section来模拟
-
     if (Device.isOwner) // 非分享设备
     {
       commonMenuData = [
         {
-          'name': MHLocalizableString.string.deviceName,
-          'subtitle': MHGlobal.deviceName,
+          'name': LocalStrings.deviceName,
+          'subtitle': LocalStrings.deviceName,
           'func': () => {
-            Host.ui.openChangeDeviceName();
+            //不支持替换设备名字
           }
         },
         {
-          'name': MHLocalizableString.string.locationManagement,
+          // 'name': LocalStrings.how,
+          'name': LocalStrings.locationManagement,
           'func': () => {
             Host.ui.openRoomManagementPage();
           }
         },
         {
-          'name': MHLocalizableString.string.shareDevice,
+          'name': LocalStrings.shareDevice,
           'func': () => {
             Host.ui.openShareDevicePage();
           }
         },
         {
-          'name': MHLocalizableString.string.ifttt,
+          'name': LocalStrings.ifttt,
           'func': () => {
             Host.ui.openIftttAutoPage();
           }
         },
         {
-          'name': MHLocalizableString.string.firmwareUpgrate,
+          'name': LocalStrings.UseHelp,
           'func': () => {
-            Host.ui.openDeviceUpgradePage();
+            Host.ui.openFeedbackInput();
           }
         },
         {
-          'name': MHLocalizableString.string.moreSetting,
-          'func': () => {
-            Host.ui.openNewMorePage();
-          }
-        },
-        {
-          'name': MHLocalizableString.string.addToDesktop,
+          'name': LocalStrings.addToDesktop,
           'func': () => {
             Host.ui.openAddToDesktopPage();
           }
         },
-
         {
-          'name': MHLocalizableString.string.licenseAndPolicy,
+          'name': LocalStrings.licenseAndPolicy,
           'func': () => {
-            Host.ui.privacyAndProtocolReview("license", "https://www.baidu.com", "privacy", "https://www.baidu.com");
+            // if (MHPluginSDK.apiLevel >= 133) {
+            if (LocalStrings.getLanguage() == "en") {
+
+              // MHPluginSDK.privacyAndProtocolReview(LocalStrings.License, "http://moyu.haijiacp.com/mobile/terms_of_use_en.html", LocalStrings.Policy, "http://moyu.haijiacp.com/mobile/privacy_agreement_en.html");
+
+            } else {
+
+              // MHPluginSDK.privacyAndProtocolReview(LocalStrings.License, "http://moyu.haijiacp.com/mobile/terms_of_use_1.html", LocalStrings.Policy, "http://moyu.haijiacp.com/mobile/privacy_agreement_1.html");
+            }
+
+            // } else if (MHPluginSDK.apiLevel >= 129) {
+            //   MHPluginSDK.reviewPrivacyAndProtocol();
+            // } else {
+
+            // }
           }
         },
 
@@ -131,26 +129,28 @@ export default class Setting extends React.Component {
 
       featureMenuData = [
         {
-          'name': '自定义设置选项',
+          'name': LocalStrings.ProgramEdit,
           'func': () => {
-            this.props.navigation.navigate('moreMenu')
-            // this.props.navigator.push(MoreMenu.route);
+            //程序编辑
+            // this.props.navigation.navigate(
+            //   'WashEdit'
+            // )
           }
         }
+
       ];
 
       resetMenuData = [
         {
-          'name': MHLocalizableString.string.resetDevice,
+          'name': LocalStrings.resetDevice,
           'func': () => {
             Host.ui.openDeleteDevice();
           }
         },
       ];
     }
-    var featureSetting = MHLocalizableString.string.featureSetting;
-    var commonSetting = MHLocalizableString.string.commonSetting;
-    // alert("commonSetting " + commonSetting);
+    var featureSetting = LocalStrings.featureSetting;
+    var commonSetting = LocalStrings.commonSetting;
     this._menuData = {};
     this._menuData[featureSetting] = featureMenuData;
     this._menuData[commonSetting] = commonMenuData;
@@ -176,12 +176,10 @@ export default class Setting extends React.Component {
       <View>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionHeaderText}>{sectionID}</Text>
-
         </View>
       </View>
     );
   }
-
   _renderRow (rowData, sectionID, rowID) {
     if (sectionID != '') {
       return (
@@ -189,8 +187,6 @@ export default class Setting extends React.Component {
           <View style={{ backgroundColor: '#ffffff' }}>
             <View style={styles.rowContainer}>
               <Text style={styles.title}>{rowData.name}</Text>
-              {/* <Text style= {styles.subtitle}>{rowData.subtitle?MHGlobal.deviceName:'' }</Text>
-              <Image style={styles.subArrow} source={require("../Resources/sub_arrow.png")} /> */}
             </View>
             <View style={rowID != this._menuData[sectionID].length - 1 ? styles.separator : {}}></View>
           </View>
@@ -207,31 +203,12 @@ export default class Setting extends React.Component {
         </TouchableHighlight>
       );
     }
-
   }
 
   _pressRow (sectionID, rowID) {
     console.log("sectionID" + sectionID + "row" + rowID + "clicked!");
     this._menuData[sectionID][rowID].func();
   }
-
-  // onShowDidButtonPress() {
-  //   this.props.navigator.push(HelloDeveloper.route);
-  // }
-
-  // showReactART() {
-  //   this.props.navigator.push(HelloReactART.route);
-  // }
-
-  // showActionSheet() {
-  //   ActionSheetIOS.showActionSheetWithOptions({
-  //         options: BUTTONS,
-  //         destructiveButtonIndex: 1,
-  //         },
-  //         (buttonIndex) => {
-
-  //         });
-  // }
 };
 
 var styles = StyleSheet.create({
@@ -308,3 +285,4 @@ var styles = StyleSheet.create({
     marginRight: 20
   }
 });
+

@@ -1,0 +1,10 @@
+{
+  "package_path": "com.moyu.washer.ios",
+  "min_sdk_api_level": 133,
+  "developer_id": "1133183431",
+  "version_code": 1,
+  "entrance_scene": {
+    "action_ids": [],
+    "trigger_ids": []
+  }
+}

@@ -252,7 +252,7 @@ export default class CommonSetting extends React.Component {
     showDot: [],
     extraOptions: {},
   }
-  getCommonSetting(state) {
+  getCommonSetting (state) {
     return {
       [firstAllOptions.NAME]: {
         title: strings.name,
@@ -310,13 +310,13 @@ export default class CommonSetting extends React.Component {
     console.log(`Device.type: ${Device.type}`);
     this.commonSetting = this.getCommonSetting(this.state);
   }
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps (props) {
     this.setState({ showDot: props.showDot });
   }
   /**
    * @description 点击「法律信息」，传入用户协议和隐私政策的文件地址
    */
-  privacyAndProtocolReview() {
+  privacyAndProtocolReview () {
     const { licenseUrl, policyUrl, option } = this.props.extraOptions;
     if (option === undefined) { // 兼容旧写法
       Host.ui.privacyAndProtocolReview('', licenseUrl, '', policyUrl);
@@ -328,7 +328,7 @@ export default class CommonSetting extends React.Component {
   /**
    * @description 点击「固件升级」，选择性跳转
    */
-  chooseFirmwareUpgrade() {
+  chooseFirmwareUpgrade () {
     // 默认是wifi设备固件升级的原生页面
     const { showUpgrade, upgradePageKey } = this.props.extraOptions;
     if (showUpgrade === false) {
@@ -365,7 +365,7 @@ export default class CommonSetting extends React.Component {
    * @description 从 this.state.showDot 移除某key，从而隐藏小红点
    * @param {string} key
    */
-  removeKeyFromShowDot(key) {
+  removeKeyFromShowDot (key) {
     const showDotTmp = [...this.state.showDot];
     const index = showDotTmp.indexOf(key);
     if (index !== -1) {
@@ -382,7 +382,7 @@ export default class CommonSetting extends React.Component {
    * @description 打开二级菜单
    * @param {string} page index.js的RootStack中页面定义的key
    */
-  openSubPage(page, params = { networkInfoConfig: this.props.extraOptions.networkInfoConfig, syncDevice: this.props.extraOptions.syncDevice, secondOptions: this.props.secondOptions, excludeRequiredOptions: this.props.extraOptions.excludeRequiredOptions }) {
+  openSubPage (page, params = { networkInfoConfig: this.props.extraOptions.networkInfoConfig, syncDevice: this.props.extraOptions.syncDevice, secondOptions: this.props.secondOptions, excludeRequiredOptions: this.props.extraOptions.excludeRequiredOptions }) {
     if (this.props.navigation) {
       this.props.navigation.navigate(page, params);
     }
@@ -393,11 +393,11 @@ export default class CommonSetting extends React.Component {
   /**
    * @description 弹出「删除设备」弹窗
    */
-  openDeleteDevice() {
+  openDeleteDevice () {
     const { deleteDeviceMessage } = this.props.extraOptions;
     Host.ui.openDeleteDevice(deleteDeviceMessage);
   }
-  render() {
+  render () {
     // 如果不设置英文字体，那么外文字符串将显示不全（Android）
     let fontFamily = {};
     if (Platform.OS === 'android') fontFamily = { fontFamily: 'Kmedium' }
@@ -476,14 +476,14 @@ export default class CommonSetting extends React.Component {
       </View>
     );
   }
-  componentWillMount() {
+  componentWillMount () {
     this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener(device => {
       this.state.name = device.name;
       this.commonSetting = this.getCommonSetting(this.state);
       this.forceUpdate();
     });
   }
-  componentWillUnmount() {
+  componentWillUnmount () {
     this._deviceNameChangedListener.remove();
   }
 }

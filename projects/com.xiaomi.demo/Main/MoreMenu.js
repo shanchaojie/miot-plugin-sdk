@@ -31,7 +31,7 @@ export default class MoreMenu extends React.Component {
     };
   }
 
-  _createMenuData() {
+  _createMenuData () {
     this._menuData = [
       {
         'name': '你好，开发者！',
@@ -154,7 +154,7 @@ export default class MoreMenu extends React.Component {
       {
         'name': "开启倒计时",
         'func': () => {
-          let setting = {onMethod:"power_on", offMethod:'power_off', onParam:'on', offParam:'off', identify: 'aaaa'}
+          let setting = { onMethod: "power_on", offMethod: 'power_off', onParam: 'on', offParam: 'off', identify: 'aaaa' }
           //   let setting = {}
           Host.ui.openCountDownPage(false, setting);
         }
@@ -237,17 +237,17 @@ export default class MoreMenu extends React.Component {
     ];
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.listenter = DeviceEvent.deviceTimeZoneChanged.addListener((val) => {
       console.log("deviceTimeZoneChanged", val);
     })
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
 
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.container}>
         <ListView style={styles.list} dataSource={this.state.dataSource} renderRow={this._renderRow.bind(this)} />
@@ -255,7 +255,7 @@ export default class MoreMenu extends React.Component {
     );
   }
 
-  _renderRow(rowData, sectionID, rowID) {
+  _renderRow (rowData, sectionID, rowID) {
     return (
       <TouchableHighlight underlayColor='#838383' onPress={() => this._pressRow(rowID)}>
         <View>
@@ -269,20 +269,20 @@ export default class MoreMenu extends React.Component {
     );
   }
 
-  _pressRow(rowID) {
+  _pressRow (rowID) {
     console.log("row" + rowID + "clicked!");
     this._menuData[rowID].func();
   }
 
-  onShowDidButtonPress() {
+  onShowDidButtonPress () {
     this.props.navigation.navigate('helloDeveloper');
   }
 
-  showReactART() {
+  showReactART () {
     this.props.navigation.navigate('helloReactART');
   }
 
-  showActionSheet() {
+  showActionSheet () {
     if (Host.isIOS)
       ActionSheetIOS.showActionSheetWithOptions({
         options: BUTTONS,

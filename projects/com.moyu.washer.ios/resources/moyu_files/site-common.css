@@ -1,0 +1,41 @@
+@charset "UTF-8";
+/*
+@font-face{
+	font-family:'ltxh';
+	src:url("../font/ltxh.TTF");
+}
+*/
+html *{margin: 0; padding: 0px; font-family:'ltxh',"Microsoft YaHei","Helvetica Neue",Helvetica,Arial,sans-serif;}
+body{width: 100%; margin: 0 auto; max-width: 750px; min-width: 320px;}
+#hide{display: none;}
+.navbar{margin-bottom: 0px;}
+.navbar-static-top{border-width:0px; position: relative;}
+.navbar-header{background: #000; height: 50px;}
+.navbar-toggle{position: absolute; top:5px; left:5px; margin: 5px;}
+.navbar-toggle .icon-bar{background-color: #fff; }
+.navbar-header a{cursor: pointer;}
+.navbar-header a img.logo{width: 40px; height: 38px;display: block; margin: 0 auto; margin-top: 6px;}
+.navbar-nav>li>a{color: #fff;}
+.navbar-nav>li>a:hover{color:#000;}
+ul.navbar-nav > li.nav-outside{height:auto;}
+.nav-outside{position: relative;}
+.son-nav > ul > li{ list-style: none;  margin-left: 10px; margin-top: 10px;}
+.son-nav > ul > li > a {padding: 5px 20px;  color: #fff;  }
+.son-nav > ul > li > a.checked{ color: #fff;}
+
+
+
+.navbar-collapse{background-color: #000;}
+.navbar-header{float: none;}
+
+
+@media (min-width: 750px ){
+	header{max-width: 750px;}
+	.container{max-width: 750px;padding-left:0px;}
+	.navbar > .container{padding-left:0px; padding-right: 0px;}
+	.navbar-nav{float:none;}
+	.navbar-nav>li{float: none; width: 100%}
+	.collapse{display: none;}
+	.navbar-toggle{display: block;}
+	.navbar-collapse.collapse{display: none;}
+}
