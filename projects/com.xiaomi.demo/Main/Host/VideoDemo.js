@@ -158,7 +158,7 @@ export default class VideoDemo extends Component {
         <TouchableOpacity style={styles.fullScreen} onPress={() => { this.setState({ paused: !this.state.paused }) }}>
           <Video
             source={this.state.videoSource}
-            // source={require('../Resources/mp4/broadchurch.mp4')}
+            // source={require('../../Resources/mp4/broadchurch.mp4')}
             style={styles.fullScreen}
             rate={this.state.rate}
             paused={this.state.paused}
@@ -169,7 +169,7 @@ export default class VideoDemo extends Component {
             onLoad={this.onLoad}
             onBuffer={this.onBuffer}
             onProgress={this.onProgress}
-            onEnd={() => { AlertIOS.alert('Done!') }}
+            onEnd={() => { alert('Done!') }}
             repeat={true}
             ref={(ref) => {
               this.player = ref
@@ -255,7 +255,7 @@ export default class VideoDemo extends Component {
             onLoad={this.onLoad}
             onBuffer={this.onBuffer}
             onProgress={this.onProgress}
-            onEnd={() => { AlertIOS.alert('Done!') }}
+            onEnd={() => { alert('Done!') }}
             repeat={true}
             controls={this.state.controls}
           />

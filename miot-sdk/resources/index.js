@@ -1,7 +1,7 @@
 /**
  * @export public
  * @doc_name 系统资源
- * @doc_index 7
+ * @doc_index 2
  * @doc_directory sdk
  * @module miot/resources
  * @description 系统提供的静态资源, 包括图片, 文字, 基础 styleSheet css 等等
@@ -27,9 +27,10 @@
  * 
  * console.log(res.getLanaguage())
  * 
+ * function createI18n(langStrings, defaultLanguage){}
  * 
  */
- function createI18n(langStrings, defaultLanguage){}
+import native, { createI18n } from '../native';
 import Images from "./Images";
 import logo from './images/logo.png';
 import strings from "./Strings";
@@ -49,6 +50,9 @@ import zh from './strings/zh';
 import zh_bo from "./strings/zh_bo";
 import zh_hk from "./strings/zh_hk";
 import zh_tw from "./strings/zh_tw";
+import tr from "./strings/tr";
+import nl from "./strings/nl";
+import pt from "./strings/pt";
 import Styles from './Styles';
 export { Images, Styles, strings };
 /**
@@ -150,7 +154,12 @@ export const Language = {
      * 阿拉伯语
      * @const
      */
-    ar: "ar"
+    ar: "ar",
+    /**
+     * 土耳其语
+     * @const
+     */
+    tr: "tr"
 }
 Object.freeze(Language);
  const i18n={system:createI18n({zh,en,zh_tw,zh_hk,zh_bo,es,ko,ru,it,fr,de,id,pl,vi,ja,th}, Language.zh), custom:{}, lang:false}

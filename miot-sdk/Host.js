@@ -6,7 +6,15 @@
  * @module miot/Host
  * @description
  * 扩展程序运行时的宿主环境
- * 所有由宿主APP直接提供给扩展程序的接口均列在这里. 主要包括原生业务页面, 本地数据访问等
+ * 所有由宿主APP直接提供给扩展程序的接口均列在这里. 主要包括原生业务页面、本地数据访问、系统提供的能力等
+ * 系统的能力主要包括：
+ * 音频(audio.js)
+ * 文件存储(file.js)
+ * 本地KV存储(storage.js)
+ * 编解码(crypto.js)
+ * 系统基本信息(locale.js)
+ * 米家APP提供的能力主要包括：
+ * 米家APP提供的UI能力(ui.js)
  *
  * @example
  *
@@ -39,14 +47,14 @@
  *  Host.storage.set(key, value)
  *
  */
-import { DeviceEventEmitter } from "react-native";
 import HostAudio from './host/audio';
 import HostCrypto from './host/crypto';
 import HostFile from './host/file';
 import HostLocale from './host/locale';
 import HostStorage from './host/storage';
-import HostUI from './host/ui';
+// import HostUI from './host/ui';
  const IOS="ios", ANDROID="android";
+const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 export const HOST_TYPE_IOS = IOS;
 export const HOST_TYPE_ANDROID = ANDROID;
 export default {
@@ -115,6 +123,7 @@ export default {
      * @const
      * @type {int}
      * @readonly
+     * @deprecated 10033
      */
     get applicationEdition() {
          return  true
@@ -138,7 +147,8 @@ export default {
      *
      */
     get ui() {
-        return HostUI;
+        let ui = require('./host/ui').default;
+        return ui;
     },
     /**
      * @const
@@ -183,23 +193,40 @@ export default {
     },
     /**
      * 获取手机wifi信息
-     * @return {Promise}
+     * @return {Promise<object>}
+     * 成功时：{BSSID:xxx, SSID:xxx}
+     * 失败时：返回的是错误信息，字符串格式
      * @example
-     * Host.getWifiInfo().then(res => console("ssid and bssid = ", res.SSID, res.BSSID))
+     * Host.getWifiInfo()
+     * .then(res => console.log("ssid and bssid = ", res.SSID, res.BSSID))
+     * .catch((error)=>{
+     *   console.log(error)
+     * });
      */
     getWifiInfo() {
          return Promise.resolve(null);
     },
     /**
      * 获取APP名称
+     * @return {Promise<string>}
+     *
      */
     getAppName() {
+         return Promise.resolve(null);
+    },
+    /**
+     * 获取Android手机屏幕相关信息(包括状态栏高度)
+     * @since 10012
+     * @returns {Promise<object>} 手机屏幕相关信息 {'viewWidth':xxx, 'viewHeight':xxx}
+     */
+    getPhoneScreenInfo() {
          return Promise.resolve(null);
     },
     /**
      * 获取当前登陆用户的服务器国家
      * @since 10010
      * @deprecated 10011 改用 Service.getServerName
+     * @returns Promise<string> 返回国家编码，如:‘CN’
      */
     getCurrentCountry() {
          return Promise.resolve(null);
@@ -257,23 +284,61 @@ export default {
     /**
      * android 手机是否有NFC功能
      * @since 10021
-     * @return {Promise}
+     * @return {Promise<json>}  {hasNfc:true/false}
      * @example
-     * Host.phoneHasNfcForAndroid().then(res => console(res))
+     * Host.phoneHasNfcForAndroid().then((result)=>{
+     *   console.log(result.hasNfc);
+     * }))
      */
     phoneHasNfcForAndroid() {
          return Promise.resolve(null);
     },
+    /**
+     * android 连接指定ssid得wifi，要求该wifi之前已经连接过 使用此api不需要特别权限
+     * @param   ssid 需要去掉字串两端的引号。在native层会自己增加""
+     * @since 10036
+     * @return {Promise<JSON>}  
+     * @example
+     * Host.connectWifiWithSsid().then((result)=>{
+     *   console.log(result);
+     * }))
+     */
+    connectWifiWithSsid(ssid) {
+       return Promise.resolve(null);
+  },
   /**
-   * 页面有输入框，需要打开软键盘，页面适配软键盘
-   * @since 10027
-   * @param {boolean} shouldAdapter  true: 表示进行适配,建议UI用ScrollView包裹起来，当输入框在屏幕的下半部分时，只会触发ScrollView滚动; false： 整个页面滚动, demo可参考SoftKeyboardAdapterTestDemo.js
-   * @returns {Promise}
+   * @since 10037
+   * @param type 0 for mobile  1 for wifi 2 for null
+   * equal to android's bindProcessToNetwork
    */
-  pageShouldAdapterSoftKeyboard(shouldAdapter) {
+  bindProcessToNetwork(type) {
      return Promise.resolve(null);
   },
+    /**
+     * 页面有输入框，需要打开软键盘，页面适配软键盘
+     * @since 10027
+     * @param {boolean} shouldAdapter  true: 表示进行适配,建议UI用ScrollView包裹起来，当输入框在屏幕的下半部分时，只会触发ScrollView滚动; false： 整个页面滚动, demo可参考SoftKeyboardAdapterTestDemo.js
+     * @returns {Promise<boolean>} 设置成功返回true(iOS没有实现这个接口,直接返回true)
+     */
+    pageShouldAdapterSoftKeyboard(shouldAdapter) {
+         return Promise.resolve(null);
+    },
 }
+/**
+ * Host事件集合
+ * @namespace HostEvent
+ * @example
+ *    import { HostEvent } from 'miot/host';
+ *    const subscription = HostEvent.cellPhoneNetworkStateChanged.addListener(
+ *       (event)=>{
+ *          ...
+ *       }
+ *     )
+ *    ...
+ *    subscription.remove()
+ *    ...
+ *
+ */
 export const HostEvent = {
     /**
      * 手机网络状态变更事件

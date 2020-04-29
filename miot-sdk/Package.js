@@ -1,7 +1,7 @@
 /**
  * @export public
  * @doc_name 插件导航模块
- * @doc_index 6
+ * @doc_index 1
  * @doc_directory sdk
  * @module miot/Package
  * @description 扩展程序包参数, 主要来自于{@link packageInfo.json} 的配置与系统本身的特性
@@ -31,11 +31,13 @@
 import { MessageDialog } from 'miot/ui';
 import React from 'react';
 import { AppRegistry, DeviceEventEmitter, View } from "react-native";
-import { Device, Package } from '.';
-import RootDevice from "./Device";
+import Service from './Service';
+import Device from "./device/BasicDevice";
 import Host from './Host';
 import resolveAssetResource from "./native/common/node/resolve";
 import { strings } from './resources';
+import ProtocolManager from './utils/protocol-helper'
+import rnPackageJSON from 'react-native/package.json'
 /**
  * @description JS端通知Native端的事件类型
  * @enum {number}
@@ -44,7 +46,7 @@ const EVENT_TYPE = {
     /**
      * 插件路由发生变化
      */
-    NAVIGATION_STATE_CHANGE: 1,
+    NAVIGATION_STATE_CHANGE: 1
 }
 Object.freeze(EVENT_TYPE);
 export const DEBUG = "debug";
@@ -102,6 +104,12 @@ export const PackageEvent = {
     * @event
     */
     packageDidResume: { always: true },
+    /**
+     * SDK弹出的隐私同意时的回调
+     * @event
+     * @since 10037
+     */
+    packageAuthorizationAgreed: { always: true },
     /**
      * 用户撤销隐私授权时的回调
      * @event
@@ -194,7 +202,7 @@ export default {
          return  0
     },
     get pluginID() {
-       return  0
+         return  0
     },
     /**
      * 程序包的版本号, 来自于{@link project.json} 的 {@link version}
@@ -205,6 +213,12 @@ export default {
      */
     get version() {
          return  ""
+    },
+    /**
+     * 获取React Native版本
+     */
+    get rnVersion() {
+        return rnPackageJSON.version;
     },
     /**
      * 程序包名, 来自于{@link project.json} 的 {@link package_name}

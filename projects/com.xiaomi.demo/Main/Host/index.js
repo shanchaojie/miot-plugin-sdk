@@ -40,27 +40,51 @@ export default class HostDemo extends React.Component {
         }
       },
       {
-        'name': 'Native导航模块-ui',
+        'name': '音频',
         'func': () => {
-          this.props.navigation.navigate('NavigateUIDemo', { title: 'Native导航模块-ui' })
+          this.props.navigation.navigate('audioDemo', { 'title': '音频Demo' });
         }
       },
       {
-        'name': '文件存储与截图-file',
+        'name': '视频',
         'func': () => {
-          this.props.navigation.navigate('fileStorage', { title: '文件存储与截图-file' })
+          this.props.navigation.navigate('videoDemo', { 'title': '视频Demo' });
+        }
+      },
+      {
+        'name': '加密',
+        'func': () => {
+          this.props.navigation.navigate('cryptoDemo', { 'title': '加密Demo' });
+        }
+      },
+      {
+        'name': 'Route 到 Native 页面 - Host.ui',
+        'func': () => {
+          this.props.navigation.navigate('NavigateUIDemo', { title: 'Route 到 Native 页面 - Host.ui' })
+        }
+      },
+      {
+        'name': '本地文件存储与截图-file',
+        'func': () => {
+          this.props.navigation.navigate('FileDemo', { title: '本地文件存储与截图-file' })
         }
       },
       {
         'name': '本地KV存储-storage',
         'func': () => {
-          this.props.navigation.navigate('storageDemo', { title: '本地KV存储-storage' })
+          this.props.navigation.navigate('KVStorageDemo', { title: '本地KV存储-storage' })
         }
       },
       {
         'name': '本地化相关-local',
         'func': () => {
           this.props.navigation.navigate('LocaleServer', { title: '本地化相关-local' })
+        }
+      },
+      {
+        'name': '相册相关-PhotoDemo',
+        'func': () => {
+          this.props.navigation.navigate('PhotoDemo', { title: '相册相关-PhotoDemo' })
         }
       },
       {
@@ -76,6 +100,11 @@ export default class HostDemo extends React.Component {
             console.log(res);
             alert(JSON.stringify(res));
           })
+        }
+      }, {
+        "name": '打开WebView',
+        'func': () => {
+          Host.ui.openWebPage("https://home.mi.com/views/article.html?articleId=684095286000000001");
         }
       }
     ];

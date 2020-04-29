@@ -4,10 +4,16 @@
  * @doc_index 6
  * @doc_directory service
  * @module miot/service/storage
- * @description MIOT 云端提供的各种暂存服务, 包括文件上传,下载?
+ * @description MIOT 云端提供的暂存服务
  *
  */
-export default {
+import { report } from "../decorator/ReportDecorator";
+/**
+ * 云端配置管理
+ * @interface
+ *
+ */
+class ICloudStorage {
   /**
    * 读取米家的用户配置信息 /user/get_user_config（获取/user/set_user_config写入的用户配置）
    * @param {number} componentId 厂商APP_ID(Cloud ID)，需要向小米申请, 0 和 1 预留
@@ -17,9 +23,10 @@ export default {
    * @example
    * getUserConfigs(componentId, k1,k2,k3).then(res => {...})
    */
+  @report
   getUserConfigs(componentId, ...keys) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 读取三方数据,该接口读取厂商的用户配置信息 /user/get_third_user_config，对应的写的接口为：set_third_user_config。
    * @param {string} model 设备Model
@@ -28,9 +35,10 @@ export default {
    * @example
    * getThirdUserConfigs(model, k1,k2,k3).then(res => {...})
    */
+  @report
   getThirdUserConfigs(model, ...keys) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 写数据 /user/set_user_config
    * @param {string} componentId 厂商APP_ID(Cloud ID)，需要向小米申请，0和1预留
@@ -38,9 +46,10 @@ export default {
    * @returns {Promise}
    * @deprecated 10023开始废弃，建议使用 setThirdUserConfigsForOneKey, data数据量支持分段保存
    */
+  @report
   setUserConfigs(componentId, data) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 写数据 /user/set_user_config， data的数据量不能超过2048字节
    * @param {string} model 
@@ -48,9 +57,10 @@ export default {
    * @param {json} data
    * @deprecated 10023开始废弃，建议使用setThirdUserConfigsForOneKey, data数据量支持分段保存
    */
+  @report
   setThirdUserConfigs(model, key, data) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 写数据 /user/set_user_config
    * 创建或修改设置插件自由存储空间。如果数据超过服务器设置的阈值，自动分段存储到云端。
@@ -60,18 +70,27 @@ export default {
    * @param {string} model
    * @param {number} key
    * @param {json} data
+   * @returns {Rromise<any>} Promise
+   * 成功时：true
+   * 失败时：{"code":xxx, "message":"xxx" }
    */
+  @report
   setThirdUserConfigsForOneKey(model, key, data) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 与setThirdUserConfigsForOneKey配套使用，会把分段的数据自动合并后返回，使得分段行为对调用者透明
    * @since 10023
    * @param model
    * @param key
    * @returns {Promise<any>}
+   * 成功时：{key:xxx, data:xxx}   data 为set时的数据
+   * 失败时：{"code":xxx, "message":"xxx" }
    */
+  @report
   getThirdUserConfigsForOneKey(model, key) {
      return Promise.resolve(null);
-  },
+  }
 }
+const CloudStorageInstance = new ICloudStorage();
+export default CloudStorageInstance;
