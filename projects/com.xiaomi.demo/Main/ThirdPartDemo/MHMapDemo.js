@@ -11,10 +11,10 @@ import {
   TouchableOpacity,
   Dimensions, StatusBar
 } from 'react-native';
-
-var MHMapSearch = require('NativeModules').MHMapSearch;
-import { AMapView } from 'miot/ui';
-import { Device, Host } from 'miot';
+// NativeModules
+var MHMapSearch = require('react-native/Libraries/BatchedBridge/NativeModules').MHMapSearch;
+import {AMapView} from 'miot/ui';
+import {Device, Host} from 'miot';
 import TitleBar from "miot/ui/TitleBar";
 var window = Dimensions.get('window');
 
@@ -97,6 +97,7 @@ export default class MHMapDemo extends React.Component {
           userTrackingMode='follow'
           showsCompass={false}
           showsScale={false}
+          zoomEnabled={false}
           userLocationRepresentation={this.state.userLocationRepresentation}
           annotations={this.state.annotations}
           onSingleTappedAtCoordinate={this._onSingleTappedAtCoordinate.bind(this)}

@@ -6,6 +6,9 @@
  * @module miot/host/audio
  * @description
  * 音频处理
+ * 
+ *  重要： 请参考 com.xiaomi.demo 中 MHAudioDemo 中各个api的用法。
+ * 
  * @example
  * import {Host} from 'miot'
  * ...
@@ -15,16 +18,25 @@
  * Host.audio.stopRecord().then(res => {//stop finished})
  * ...
  */
-export default {
+import { report } from "../decorator/ReportDecorator";
+/**
+ * 音频
+ * @interface
+ *
+ */
+class IAudio {
   /**
    * 用户是否开启录制权限
+   * 在Android平台下 由于需要动态获取录音权限，所以该方法固定返回true，但是并不意味着可以录音。
    * @return {boolean}
    */
+  @report
   isAbleToRecord() {
-     return Promise.resolve(null);
-  },
+     return false;
+  }
   /**
    * 开始录音
+   * 在Android平台下 由于需要动态获取录音权限 使用方法请参考 请参考 com.xiaomi.demo 中 MHAudioDemo 的用法
    * @param {string} audioName  保存文件名，如 audio.mp3
    * @param {json} settings 配置参数{ AVSampleRateKey 采样率 默认44100，
    *                                AVNumberOfChannelsKey 声道，默认2，
@@ -34,34 +46,71 @@ export default {
    *                              }
    *
    * @return {Promise}
+   * @example
+   * import { Host } from "miot";
+   * import React from 'react';
+   * import { PermissionsAndroid, Platform } from 'react-native';
+   *
+   * var settings = {
+   *   AVFormatIDKey: 'audioFormatLinearPCM',
+   *   AVSampleRateKey: 9500,
+   *   AVNumberOfChannelsKey: 2,
+   *   AVEncoderAudioQualityKey: 'audioQualityHigh',
+   *   AVLinearPCMBitDepthKey: 16,
+   *   AVLinearPCMIsBigEndianKey: false,
+   *   AVLinearPCMIsFloatKey: false,
+   * };
+   * if (Platform.OS === 'android') {
+   *   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO, null)
+   *     .then((granted) => {
+   *       console.log("granted", granted);
+   *       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+   *         Host.audio.startRecord(fileName, settings).then(() => {
+   *           console.log('startRecord');
+   *         });
+   *       }
+   *     }).catch((error) => {
+   *       console.log("error", error)
+   *     })
+   * } else {
+   *   Host.audio.startRecord(fileName, settings).then(() => {
+   *     console.log('startRecord');
+   *   }).catch((err) => {
+   *     console.log('startRecord catch error' + err);
+   *   });
+   * }
    *
    */
+  @report
   startRecord(audioName, settings) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 停止录音
    * @return {Promise}
    */
+  @report
   stopRecord() {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 开始播放
    * @param {string} audioName 文件名
    * @param {json} settings 配置参数 updateAudioPlayerTimeInterval 回调间隔, audioPlayerUid 音频的唯一标识
    * @return {Promise}
    */
+  @report
   startPlay(audioName, settings) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 停止播放
    * @return {Promise}
    */
+  @report
   stopPlay() {
      return Promise.resolve(null);
-  },
+  }
   /**
    * 获取当前录制声音的峰值声音强度。
    * for iOS： 对应的原生api为 [AVAudioRecorder peakPowerForChannel:0]
@@ -77,52 +126,32 @@ export default {
    * 成功时：{"code":0, "data":xxx}    失败时：{"code":-1, "message":"xxx" }
    *
    */
+  @report
   getRecordingPeakPower() {
      return Promise.resolve(null);
-  },
+  }
   /**
    * wav转 amr
+   * android暂不支持该方法
    * @param {string} wavPath 读取 wav 文件名
    * @param {string} savePath 保存 amr 文件名
    * @return {Promise}
    */
+  @report
   wavToAmr(wavPath, savePath) {
      return Promise.resolve(null);
-  },
+  }
   /**
    * amr 转 wav
+   * android暂不支持该方法
    * @param {string} amrPath 读取 amr 文件名
    * @param {string} savePath 保存 wav 文件名
    * @return {Promise}
    */
+  @report
   amrToWav(amrPath, savePath) {
      return Promise.resolve(null);
-  },
-};
-/**
- * Audio播放事件名集合
- * @namespace AudioEvent
- * @example
- *    import { AudioEvent } from 'miot/host/audio';
- *    const subscription = AudioEvent.audioPlayerDidFinishPlaying.addListener(
- *       (event)=>{
- *          ...
- *       }
- *     )
- *    ...
- *    subscription.remove()
- *    ...
- *
- */
-export const AudioEvent = {
-  /**
-   * 播放完毕事件
-   * @event
-   * @param {json} event -{audioPlayerUid,isSuccess}音频播放的Uid，是否播放成功
-   * @since 10020
-   *
-   */
-  audioPlayerDidFinishPlaying: {
+  }
   },
   /**
    * 播放进度事件

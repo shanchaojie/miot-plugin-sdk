@@ -11,7 +11,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { requireNativeComponent, ViewPropTypes } from 'react-native';
 import Host from '../Host';
-const resolveAssetSource = require('resolveAssetSource');
+// const resolveAssetSource = require('resolveAssetSource');
+const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
 const MapView = requireNativeComponent('MHMapView', null);
 export default class AMapView extends Component {
     static propTypes = {

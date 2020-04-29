@@ -4,7 +4,14 @@
  * @doc_index 1
  * @doc_directory service
  * @module miot/Service
- * @description 系统服务模块，提供了设备，红外，场景，安全，存储，miot-spec协议，账号等子服务模块
+ * @description Service 模块提供的能力主要包括米家服务端及米家云平台提供的服务能力
+ * 能力主要包括：
+ * 账号管理(Account.js)
+ * 房间管理(room.js)
+ * 智能场景(scene.js)
+ * 云服务(smarthome.js)
+ * Spec协议(spec.js)
+ * 云存储(storage.js)
  * @example
  *
  * import {Service} from 'miot'
@@ -28,10 +35,11 @@
  *
  *
  */
-import Account from './Account';
+import Account from './service/Account';
 import native, { Properties } from './native';
 import apiRepo from './service/apiRepo';
 import omitApi from './service/omitApi';
+import cameraSubDomains from './service/cameraSubDomain'
 import IrController from './service/ircontroller';
 import MHRoom from './service/room';
 import Scene from './service/scene';
@@ -41,6 +49,7 @@ import Spec from './service/spec';
 import Storage from './service/storage';
 import TJInfra from './service/tjinfra';
 import MiotCamera from './service/miotcamera';
+import Kookong from './service/kookong';
  const CurrentAccount = null;
 export default {
   /**
@@ -111,6 +120,9 @@ export default {
   get room() {
     return MHRoom;
   },
+  get kookong() {
+    return Kookong;
+  },
   /**
    * @method callSmartHomeAPI
    * @since 10024
@@ -124,6 +136,21 @@ export default {
    * @param {object} params 传入参数，根据和米家后台商议的数据格式来传入，比如{ did: 'xxxx', pid: 'xxxx' }
    */
   callSmartHomeAPI(api, params) {
+     return Promise.resolve(null);
+  },
+  /**
+   * @method callSmartHomeCameraAPI
+   * @since 10035
+   * @description 专用摄像头相关接口请求
+   * api in `miot-sdk/service/apiRepo.js`
+   * subDomain in `miot-sdk/service/cameraSubDomain.js`
+   * 
+   * @param {string} api 接口地址
+   * @param {string} subDomain subDomain
+   * @param {bool}   post 是否POST方法
+   * @param {object} params 传入参数
+   */
+  callSmartHomeCameraAPI(api, subDomain, post, params) {
      return Promise.resolve(null);
   },
   /**

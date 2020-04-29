@@ -1,5 +1,6 @@
-import { Device, Host } from 'miot';
-import { DeviceEvent } from 'miot/Device';
+import { Device, Host, DeviceEvent, Service } from 'miot';
+// import {Device,DeviceEvent} from 'miot'
+// import {Host} from 'miot';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
@@ -7,6 +8,41 @@ import { RkButton } from 'react-native-ui-kitten';
 import { strings, Styles } from '../../resources';
 import ListItem from '../ListItem/ListItem';
 import Separator from '../Separator';
+let modelType = '';
+function getModelType() {
+  return new Promise((resolve, reject) => {
+    if (modelType) {
+      resolve(modelType);
+      return;
+    }
+    Service.spec.getSpecString(Device.deviceID).then(instance => {
+      if (instance && instance.type) {
+        modelType = instance.type.split(':')[3];
+        resolve(modelType);
+        return;
+      }
+      resolve(Device.model ? Device.model.split('.')[1] : '');
+    }).catch(e => {
+      resolve(Device.model ? Device.model.split('.')[1] : '');
+    });
+  });
+}
+getModelType().then(() => { }).catch(() => { });
+// 2020/02/04 灯组2.0需求，去掉cn的判断
+// let countryCode = '';
+// function getCountryCode() {
+//   return new Promise((resolve, reject) => {
+//     if (countryCode) {
+//       resolve(countryCode);
+//       return;
+//     }
+//     Service.getServerName().then(({ countryCode }) => {
+//       countryCode = (countryCode || '').toLowerCase();
+//       resolve(countryCode);
+//     }).catch(reject);
+//   });
+// }
+// getCountryCode().then(() => { }).catch(() => { });
 const firstOptions = {
   /**
    * 按键设置，多键开关`必选`，其余设备`必不选`
@@ -32,6 +68,14 @@ const firstOptions = {
    * 固件升级，`可选`
    */
   FIRMWARE_UPGRADE: 'firmwareUpgrade',
+  /**
+   * 新建设备组
+   */
+  CREATE_GROUP: 'createGroup',
+  /**
+   * 管理设备组
+   */
+  MANAGE_GROUP: 'manageGroup'
 };
 const firstAllOptions = {
   ...firstOptions,
@@ -70,6 +114,8 @@ const firstSharedOptions = {
   [firstAllOptions.VOICE_AUTH]: 0,
   [firstAllOptions.IFTTT]: 0,
   [firstAllOptions.FIRMWARE_UPGRADE]: 0,
+  [firstAllOptions.CREATE_GROUP]: 0,
+  [firstAllOptions.MANAGE_GROUP]: 0,
   [firstAllOptions.MORE]: 1,
   [firstAllOptions.HELP]: 1,
   [firstAllOptions.LEGAL_INFO]: 0, // 20190516，分享设备不显示「法律信息」
@@ -81,6 +127,8 @@ const firstSharedOptions = {
  */
 const firstAllOptionsWeight = {
   [firstAllOptions.NAME]: 0,
+  [firstAllOptions.CREATE_GROUP]: 1,
+  [firstAllOptions.MANAGE_GROUP]: 1,
   [firstAllOptions.MEMBER_SET]: 3,
   [firstAllOptions.LOCATION]: 6,
   [firstAllOptions.SHARE]: 9,
@@ -123,6 +171,8 @@ const excludeOptions = {
   [firstAllOptions.VOICE_AUTH]: [],
   [firstAllOptions.IFTTT]: [],
   [firstAllOptions.FIRMWARE_UPGRADE]: [],
+  [firstAllOptions.CREATE_GROUP]: ['17'],
+  [firstAllOptions.MANAGE_GROUP]: [],
   [firstAllOptions.MORE]: [],
   [firstAllOptions.HELP]: [],
   [firstAllOptions.LEGAL_INFO]: ['5', '15', '17'] // 新增策略：灯组、红外遥控器等虚拟设备不显示法律信息，20190619
@@ -191,7 +241,7 @@ export { firstAllOptions, secondAllOptions };
  * ```js
  * // extraOptions
  * extraOptions: {
- *   showUpgrade: bool // 「固件升级」是否跳转原生固件升级页面。默认值true。一般来说，wifi设备跳转原生固件升级页面，蓝牙设备不跳转原生固件升级页面
+ *   showUpgrade: bool // 「固件升级」是否跳转原生固件升级页面。默认值true。一般来说，wifi设备跳转原生固件升级页面，蓝牙设备（传入bleOtaAuthType除外）不跳转原生固件升级页面
  *   upgradePageKey: string // 「固件升级」如果不跳转原生固件升级页面，请传入想跳转页面的key(定义在 index.js 的 RootStack 中)
  *   licenseUrl: 资源id, // 见 miot/Host.ui.privacyAndProtocolReview 的传参说明，SDK_10023 开始废弃
  *   policyUrl: 资源id, // 见 miot/Host.ui.privacyAndProtocolReview 的传参说明，SDK_10023 开始废弃
@@ -200,6 +250,7 @@ export { firstAllOptions, secondAllOptions };
  *   option: object // 见 miot/Host.ui.previewLegalInformationAuthorization 的传参说明
  *   syncDevice: bool // 插件端设置时区后是否需要后台同步到设备端, 见 miot/Host.ui.openDeviceTimeZoneSettingPage 的传参说明
  *   networkInfoConfig: number // 「更多设置」页面是否显示「网络信息」设置项。0：不显示；1：显示；-1：米家默认配置（蓝牙设备不显示，Wi-Fi设备显示）
+ *   bleOtaAuthType: number // 打开通用的蓝牙固件OTA的原生页面。指定设备的协议类型 0: 普通小米蓝牙协议设备(新接入设备已废弃该类型)，1: 安全芯片小米蓝牙设备（比如锁类产品） 4: Standard Auth 标准蓝牙认证协议(通常2019.10.1之后上线的新蓝牙设备) 5: mesh 设备
  * }
  * ```
  * @property {object} navigation - 必须传入当前插件的路由，即 `this.props.navigation`，否则无法跳转二级页面
@@ -242,7 +293,9 @@ export default class CommonSetting extends React.Component {
       firstAllOptions.BTGATEWAY,
       firstAllOptions.VOICE_AUTH,
       firstAllOptions.IFTTT,
-      firstAllOptions.FIRMWARE_UPGRADE
+      firstAllOptions.FIRMWARE_UPGRADE,
+      firstAllOptions.CREATE_GROUP,
+      firstAllOptions.MANAGE_GROUP
     ],
     secondOptions: [
       secondAllOptions.AUTO_UPGRADE,
@@ -252,7 +305,15 @@ export default class CommonSetting extends React.Component {
     showDot: [],
     extraOptions: {},
   }
+<<<<<<< HEAD
   getCommonSetting (state) {
+=======
+  getCommonSetting(state) {
+    let { modelType } = state || {};
+    if (!modelType) {
+      modelType = '  ';
+    }
+>>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
     return {
       [firstAllOptions.NAME]: {
         title: strings.name,
@@ -291,6 +352,14 @@ export default class CommonSetting extends React.Component {
         title: strings.firmwareUpgrade,
         onPress: _ => this.chooseFirmwareUpgrade()
       },
+      [firstAllOptions.CREATE_GROUP]: {
+        title: strings[`create${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
+        onPress: _ => this.createGroup()
+      },
+      [firstAllOptions.MANAGE_GROUP]: {
+        title: strings[`manage${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
+        onPress: _ => this.manageGroup()
+      },
       [firstAllOptions.MORE]: {
         title: strings.more,
         onPress: _ => this.openSubPage('MoreSetting')
@@ -305,7 +374,9 @@ export default class CommonSetting extends React.Component {
     super(props, context);
     this.state = {
       name: Device.name,
-      showDot: props.showDot,
+      showDot: Array.isArray(props.showDot) ? props.showDot : [],
+      // countryCode,
+      modelType
     };
     console.log(`Device.type: ${Device.type}`);
     this.commonSetting = this.getCommonSetting(this.state);
@@ -330,7 +401,9 @@ export default class CommonSetting extends React.Component {
    */
   chooseFirmwareUpgrade () {
     // 默认是wifi设备固件升级的原生页面
-    const { showUpgrade, upgradePageKey } = this.props.extraOptions;
+    const { showUpgrade, upgradePageKey, bleOtaAuthType } = this.props.extraOptions;
+    let { modelType } = this.state;
+    Device.needUpgrade = false;
     if (showUpgrade === false) {
       // 蓝牙统一OTA界面
       if (upgradePageKey === undefined) {
@@ -341,7 +414,6 @@ export default class CommonSetting extends React.Component {
         console.warn('upgradePageKey 必须是字符串, 是你在 index.js 的 RootStack 中定义的页面 key');
         return;
       }
-      Device.needUpgrade = false;
       this.removeKeyFromShowDot(firstAllOptions.FIRMWARE_UPGRADE);
       this.openSubPage(upgradePageKey, {}); // 跳转到开发者指定页面
       console.warn('蓝牙统一OTA界面正在火热开发中');
@@ -351,15 +423,34 @@ export default class CommonSetting extends React.Component {
       // this.openSubPage('FirmwareUpgrade');
       // 20190516，「固件自动升级」不能做成通用功能所以去掉，
       // 那么二级页面「FirmwareUpgrade」只剩下「检查固件升级」一项，遂藏之
-      Device.needUpgrade = false;
       this.removeKeyFromShowDot(firstAllOptions.FIRMWARE_UPGRADE);
       if (Device.type === '16') { // mesh device
         Host.ui.openBleMeshDeviceUpgradePage();
+      }
+      else if (Device.type === '17' && ['light'].indexOf(modelType) !== -1) {
+        // 2019/11/21 新灯组2.0需求
+        // 虚拟组设备，跳v2.0固件更新页
+        Host.ui.openLightGroupUpgradePage();
+      }
+      else if ([0, 1, 4, 5].includes(bleOtaAuthType)) {
+        Host.ui.openBleCommonDeviceUpgradePage({ auth_type: bleOtaAuthType });
       }
       else {
         Host.ui.openDeviceUpgradePage();
       }
     }
+  }
+  /**
+   * 创建组设备
+   */
+  createGroup() {
+    Host.ui.openMeshDeviceGroupPage('add', Device.deviceID, 2);
+  }
+  /**
+   * 管理组设备
+   */
+  manageGroup() {
+    Host.ui.openMeshDeviceGroupPage('edit', Device.deviceID, 2);
   }
   /**
    * @description 从 this.state.showDot 移除某key，从而隐藏小红点
@@ -397,11 +488,41 @@ export default class CommonSetting extends React.Component {
     const { deleteDeviceMessage } = this.props.extraOptions;
     Host.ui.openDeleteDevice(deleteDeviceMessage);
   }
+<<<<<<< HEAD
   render () {
+=======
+  componentDidMount() {
+    // getCountryCode().then(countryCode => {
+    //   this.setState({
+    //     countryCode
+    //   });
+    // }).catch(() => { });
+    getModelType().then(modelType => {
+      this.commonSetting = this.getCommonSetting({
+        ...this.state,
+        modelType
+      });
+      this.setState({
+        modelType
+      });
+    }).catch(() => { });
+  }
+  render() {
+    let { modelType } = this.state;
+>>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
     // 如果不设置英文字体，那么外文字符串将显示不全（Android）
     let fontFamily = {};
     if (Platform.OS === 'android') fontFamily = { fontFamily: 'Kmedium' }
-    const requireKeys1 = [firstAllOptions.NAME, firstAllOptions.LOCATION];
+    let requireKeys1 = [firstAllOptions.NAME, firstAllOptions.LOCATION];
+    // 创建组设备
+    // 蓝牙单模和组设备不能创建
+    if (['6', '17'].indexOf(Device.type) === -1 && ['light'].indexOf(modelType) !== -1) {
+      requireKeys1.push(firstAllOptions.CREATE_GROUP);
+    }
+    // 管理组设备
+    if (Device.type === '17' && ['light'].indexOf(modelType) !== -1) {
+      requireKeys1.push(firstAllOptions.MANAGE_GROUP);
+    }
     const requireKeys2 = [
       firstAllOptions.MORE,
       firstAllOptions.HELP,
@@ -469,7 +590,7 @@ export default class CommonSetting extends React.Component {
               activeOpacity={0.8}
             >
               <Text style={[styles.buttonText, fontFamily]}>
-                {strings.deleteDevice}
+                {Device.type === '17' && Device.isOwner ? (strings[`delete${(Device.model || '').split('.')[1][0].toUpperCase()}${(Device.model || '').split('.')[1].slice(1)}Group`]) : strings.deleteDevice}
               </Text>
             </RkButton>
           </View>) : null}
@@ -490,7 +611,7 @@ export default class CommonSetting extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    // backgroundColor: '#fff'
   },
   titleContainer: {
     height: 32,
@@ -512,7 +633,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 1,
-    height: 42,
+    height: 55,
     borderRadius: 5,
     borderWidth: 0.3,
     borderColor: 'rgba(0,0,0,0.2)',
