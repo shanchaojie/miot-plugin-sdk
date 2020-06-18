@@ -9,7 +9,7 @@ import { strings, Styles } from '../../resources';
 import ListItem from '../ListItem/ListItem';
 import Separator from '../Separator';
 let modelType = '';
-function getModelType() {
+function getModelType () {
   return new Promise((resolve, reject) => {
     if (modelType) {
       resolve(modelType);
@@ -305,15 +305,11 @@ export default class CommonSetting extends React.Component {
     showDot: [],
     extraOptions: {},
   }
-<<<<<<< HEAD
   getCommonSetting (state) {
-=======
-  getCommonSetting(state) {
     let { modelType } = state || {};
     if (!modelType) {
       modelType = '  ';
     }
->>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
     return {
       [firstAllOptions.NAME]: {
         title: strings.name,
@@ -443,13 +439,13 @@ export default class CommonSetting extends React.Component {
   /**
    * 创建组设备
    */
-  createGroup() {
+  createGroup () {
     Host.ui.openMeshDeviceGroupPage('add', Device.deviceID, 2);
   }
   /**
    * 管理组设备
    */
-  manageGroup() {
+  manageGroup () {
     Host.ui.openMeshDeviceGroupPage('edit', Device.deviceID, 2);
   }
   /**
@@ -488,10 +484,7 @@ export default class CommonSetting extends React.Component {
     const { deleteDeviceMessage } = this.props.extraOptions;
     Host.ui.openDeleteDevice(deleteDeviceMessage);
   }
-<<<<<<< HEAD
-  render () {
-=======
-  componentDidMount() {
+  componentDidMount () {
     // getCountryCode().then(countryCode => {
     //   this.setState({
     //     countryCode
@@ -507,9 +500,8 @@ export default class CommonSetting extends React.Component {
       });
     }).catch(() => { });
   }
-  render() {
+  render () {
     let { modelType } = this.state;
->>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
     // 如果不设置英文字体，那么外文字符串将显示不全（Android）
     let fontFamily = {};
     if (Platform.OS === 'android') fontFamily = { fontFamily: 'Kmedium' }
