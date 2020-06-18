@@ -8,21 +8,23 @@ import { RkButton } from 'react-native-ui-kitten';
 import { strings, Styles } from '../../resources';
 import ListItem from '../ListItem/ListItem';
 import Separator from '../Separator';
+import { AccessibilityPropTypes, AccessibilityRoles, getAccessibilityConfig } from '../../utils/accessibility-helper';
+import { referenceReport } from '../../decorator/ReportDecorator';
 let modelType = '';
-function getModelType() {
-  return new Promise((resolve, reject) => {
+function getModelType () {
+  return new Promise((resolve) => {
     if (modelType) {
       resolve(modelType);
       return;
     }
-    Service.spec.getSpecString(Device.deviceID).then(instance => {
+    Service.spec.getSpecString(Device.deviceID).then((instance) => {
       if (instance && instance.type) {
         modelType = instance.type.split(':')[3];
         resolve(modelType);
         return;
       }
       resolve(Device.model ? Device.model.split('.')[1] : '');
-    }).catch(e => {
+    }).catch(() => {
       resolve(Device.model ? Device.model.split('.')[1] : '');
     });
   });
@@ -43,7 +45,7 @@ getModelType().then(() => { }).catch(() => { });
 //   });
 // }
 // getCountryCode().then(() => { }).catch(() => { });
-const firstOptions = {
+const firstOptionsInner = {
   /**
    * 按键设置，多键开关`必选`，其余设备`必不选`
    */
@@ -77,8 +79,8 @@ const firstOptions = {
    */
   MANAGE_GROUP: 'manageGroup'
 };
-const firstAllOptions = {
-  ...firstOptions,
+const firstAllOptionsInner = {
+  ...firstOptionsInner,
   /**
    * 设备名称，`必选`
    */
@@ -96,88 +98,15 @@ const firstAllOptions = {
    */
   MORE: 'more',
   /**
+   * 安全设置，`必选`
+   */
+  SECURITY: 'security',
+  /**
    * 法律信息，`必选`
    */
   LEGAL_INFO: 'legalInfo'
 };
-/**
- * 分享设备的设置项
- * 0: 不显示
- * 1: 显示
- */
-const firstSharedOptions = {
-  [firstAllOptions.NAME]: 0,
-  [firstAllOptions.MEMBER_SET]: 0,
-  [firstAllOptions.LOCATION]: 0,
-  [firstAllOptions.SHARE]: 0,
-  [firstAllOptions.BTGATEWAY]: 0,
-  [firstAllOptions.VOICE_AUTH]: 0,
-  [firstAllOptions.IFTTT]: 0,
-  [firstAllOptions.FIRMWARE_UPGRADE]: 0,
-  [firstAllOptions.CREATE_GROUP]: 0,
-  [firstAllOptions.MANAGE_GROUP]: 0,
-  [firstAllOptions.MORE]: 1,
-  [firstAllOptions.HELP]: 1,
-  [firstAllOptions.LEGAL_INFO]: 0, // 20190516，分享设备不显示「法律信息」
-};
-/**
- * 20190708 / SDK_10023
- * 所有设置项顺序固定
- * 权重值越大，排序越靠后，为了可扩展性，权重不能依次递增+1
- */
-const firstAllOptionsWeight = {
-  [firstAllOptions.NAME]: 0,
-  [firstAllOptions.CREATE_GROUP]: 1,
-  [firstAllOptions.MANAGE_GROUP]: 1,
-  [firstAllOptions.MEMBER_SET]: 3,
-  [firstAllOptions.LOCATION]: 6,
-  [firstAllOptions.SHARE]: 9,
-  [firstAllOptions.BTGATEWAY]: 12,
-  [firstAllOptions.VOICE_AUTH]: 15,
-  [firstAllOptions.IFTTT]: 18,
-  [firstAllOptions.FIRMWARE_UPGRADE]: 21,
-  [firstAllOptions.MORE]: 24,
-  [firstAllOptions.HELP]: 27,
-  [firstAllOptions.LEGAL_INFO]: 30
-};
-/**
- * 某些特殊设备类型不显示某些设置项
- * key: 设置项的key
- * value: 不显示该设置项的设备类型列表, 用 pid 表示设备类型, [] 表示支持所有设备
- * 0:  wifi单模设备
- * 1:  yunyi设备
- * 2:  云接入设备
- * 3:  zigbee设备
- * 5:  虚拟设备
- * 6:  蓝牙单模设备
- * 7:  本地AP设备
- * 8:  蓝牙wifi双模设备
- * 9:  其他
- * 10: 功能插件
- * 11: SIM卡设备
- * 12: 网线设备
- * 13: NB-IoT
- * 14: 第三方云接入
- * 15: 红外遥控器
- * 16: BLE Mesh
- * 17: 虚拟设备（新设备组）
- */
-const excludeOptions = {
-  [firstAllOptions.NAME]: [],
-  [firstAllOptions.MEMBER_SET]: [],
-  [firstAllOptions.LOCATION]: [],
-  [firstAllOptions.SHARE]: [],
-  [firstAllOptions.BTGATEWAY]: [],
-  [firstAllOptions.VOICE_AUTH]: [],
-  [firstAllOptions.IFTTT]: [],
-  [firstAllOptions.FIRMWARE_UPGRADE]: [],
-  [firstAllOptions.CREATE_GROUP]: ['17'],
-  [firstAllOptions.MANAGE_GROUP]: [],
-  [firstAllOptions.MORE]: [],
-  [firstAllOptions.HELP]: [],
-  [firstAllOptions.LEGAL_INFO]: ['5', '15', '17'] // 新增策略：灯组、红外遥控器等虚拟设备不显示法律信息，20190619
-};
-const secondOptions = {
+const secondOptionsInner = {
   /**
    * 固件升级——固件自动升级, `可选`
    */
@@ -191,8 +120,12 @@ const secondOptions = {
    */
   USER_EXPERIENCE_PROGRAM: 'userExperienceProgram'
 };
-const secondAllOptions = {
-  ...secondOptions,
+const secondAllOptionsInner = {
+  ...secondOptionsInner,
+  /**
+   * 插件版本号
+   */
+  PLUGIN_VERSION: 'pluginVersion',
   /**
    * 固件升级——检查固件更新，`必选`
    */
@@ -218,13 +151,126 @@ const secondAllOptions = {
    */
   PRIVACY_POLICY: 'privacyPolicy'
 };
+export const AllOptions = {
+  ...firstAllOptionsInner,
+  ...secondAllOptionsInner
+};
 export const SETTING_KEYS = {
   // 一级菜单
-  first_options: firstOptions,
+  first_options: AllOptions,
   // 二级菜单
-  second_options: secondOptions
+  second_options: AllOptions
 };
+const firstAllOptions = AllOptions;
+const secondAllOptions = AllOptions;
 export { firstAllOptions, secondAllOptions };
+/**
+ * 分享设备的设置项
+ * 0: 不显示
+ * 1: 显示
+ */
+const firstSharedOptions = {
+  [AllOptions.NAME]: 0,
+  [AllOptions.MEMBER_SET]: 0,
+  [AllOptions.LOCATION]: 0,
+  [AllOptions.SHARE]: 0,
+  [AllOptions.BTGATEWAY]: 0,
+  [AllOptions.VOICE_AUTH]: 0,
+  [AllOptions.IFTTT]: 0,
+  [AllOptions.FIRMWARE_UPGRADE]: 0,
+  [AllOptions.CREATE_GROUP]: 0,
+  [AllOptions.MANAGE_GROUP]: 0,
+  [AllOptions.MORE]: 1,
+  [AllOptions.HELP]: 1,
+  [AllOptions.SECURITY]: 0,
+  [AllOptions.LEGAL_INFO]: 0 // 20190516，分享设备不显示「法律信息」
+};
+/**
+ * 20190708 / SDK_10023
+ * 所有设置项顺序固定
+ * 权重值越大，排序越靠后，为了可扩展性，权重不能依次递增+1
+ */
+const firstAllOptionsWeight = {
+  [AllOptions.NAME]: 0,
+  [AllOptions.CREATE_GROUP]: 1,
+  [AllOptions.MANAGE_GROUP]: 1,
+  [AllOptions.MEMBER_SET]: 3,
+  [AllOptions.LOCATION]: 6,
+  [AllOptions.SHARE]: 9,
+  // [AllOptions.BTGATEWAY]: 12,
+  // [AllOptions.VOICE_AUTH]: 15,
+  [AllOptions.IFTTT]: 18,
+  [AllOptions.FIRMWARE_UPGRADE]: 21,
+  [AllOptions.HELP]: 24,
+  [AllOptions.MORE]: 27,
+  [AllOptions.SECURITY]: 28
+  // [AllOptions.LEGAL_INFO]: 30
+};
+/**
+ * 某些特殊设备类型不显示某些设置项
+ * key: 设置项的key
+ * value: 不显示该设置项的设备类型列表, 用 pid 表示设备类型, [] 表示支持所有设备
+ * 0:  wifi单模设备
+ * 1:  yunyi设备
+ * 2:  云接入设备
+ * 3:  zigbee设备
+ * 5:  虚拟设备
+ * 6:  蓝牙单模设备
+ * 7:  本地AP设备
+ * 8:  蓝牙wifi双模设备
+ * 9:  其他
+ * 10: 功能插件
+ * 11: SIM卡设备
+ * 12: 网线设备
+ * 13: NB-IoT
+ * 14: 第三方云接入
+ * 15: 红外遥控器
+ * 16: BLE Mesh
+ * 17: 虚拟设备（新设备组）
+ */
+const excludeOptions = {
+  [AllOptions.NAME]: [],
+  [AllOptions.MEMBER_SET]: [],
+  [AllOptions.LOCATION]: [],
+  [AllOptions.SHARE]: [],
+  [AllOptions.BTGATEWAY]: [],
+  [AllOptions.VOICE_AUTH]: [],
+  [AllOptions.IFTTT]: [],
+  [AllOptions.FIRMWARE_UPGRADE]: [],
+  [AllOptions.CREATE_GROUP]: ['17'],
+  [AllOptions.MANAGE_GROUP]: [],
+  [AllOptions.MORE]: [],
+  [AllOptions.HELP]: [],
+  [AllOptions.SECURITY]: [],
+  [AllOptions.LEGAL_INFO]: ['5', '15', '17'] // 新增策略：灯组、红外遥控器等虚拟设备不显示法律信息，20190619
+};
+/**
+ * ItemStyle - 10040新增 可参考 ListItem组件的部分样式
+ * @typedef {Object} ItemStyle
+ * @property {style} titleStyle - 标题的自定义样式
+ * @property {style} subtitleStyle - 副标题的自定义样式
+ * @property {style} valueStyle - 右侧文案的自定义样式
+ * @property {bool} dotStyle - 10040新增 title右上角红点的style  建议设置宽高为8，以免图片失真
+ * @property {number} titleNumberOfLines - 10040新增 设置title字体显示的最大行数 默认为1
+ * @property {number} subtitleNumberOfLines - 10040新增 设置subtitle字体显示的最大行数 默认为2
+ * @property {number} valueNumberOfLines - 10040新增 设置value字体显示的最大行数 默认为1
+ */
+/**
+ * MoreSettingPageStyle - 10040新增 二级页面 更多设置 页面的样式
+ * @typedef {Object} MoreSettingPageStyle
+ * @property {style} navigationBarStyle - 标题的自定义样式 -可参考 NavigationBar 样式
+ * @property {ItemStyle} itemStyle - 列表中 item样式
+ */
+/**
+ * CommonSettingStyle - 10040新增
+ * @typedef {Object} CommonSettingStyle
+ * @property {bool} allowFontScaling - 10040新增 设置字体是否随系统设置的字体大小的设置改变而改变 默认为true。
+ * @property {bool} unlimitedHeightEnable - 10040新增 设置控件高度是否自适应。 默认为false，即默认高度
+ * @property {style} titleStyle - 10040新增 CommonSetting中 "通用设置" 字体的样式
+ * @property {ItemStyle} itemStyle - 10040新增 CommonSetting中 列表item 的样式
+ * @property {object} deleteTextStyle - 10040新增 CommonSetting中 "删除设备" 字体的样式
+ * @property {object} moreSettingPageStyle - 10040新增 CommonSetting中 二级页面 更多设置 页面的样式
+ */
 /**
  * @export public
  * @doc_name 通用设置
@@ -237,6 +283,7 @@ export { firstAllOptions, secondAllOptions };
  * @property {array} firstOptions - 一级菜单列表项的keys，keys的顺序代表显示的顺序，不传将显示全部，传空数组将显示必选项
  * @property {array} secondOptions - 二级菜单列表项的keys，keys的顺序代表显示的顺序，不传将显示全部，传空数组将显示必选项
  * @property {array} showDot - 定义哪些列表项需要显示小红点。为了便于扩展每个列表项都可以显示小红点，默认全部**不显示**，需要显示传入该列表项的key即可。
+ * @property {CommonSettingStyle} commonSettingStyle - - 10040新增 CommonSetting 中有关字体样式相关设置
  * @property {object} extraOptions - 其他特殊配置项
  * ```js
  * // extraOptions
@@ -284,94 +331,112 @@ export default class CommonSetting extends React.Component {
     secondOptions: PropTypes.array,
     showDot: PropTypes.array,
     extraOptions: PropTypes.object,
-    navigation: PropTypes.object.isRequired
+    navigation: PropTypes.object.isRequired,
+    commonSettingStyle: PropTypes.object,
+    accessible: AccessibilityPropTypes.accessible
   }
   static defaultProps = {
     firstOptions: [
-      firstAllOptions.MEMBER_SET,
-      firstAllOptions.SHARE,
-      firstAllOptions.BTGATEWAY,
-      firstAllOptions.VOICE_AUTH,
-      firstAllOptions.IFTTT,
-      firstAllOptions.FIRMWARE_UPGRADE,
-      firstAllOptions.CREATE_GROUP,
-      firstAllOptions.MANAGE_GROUP
+      AllOptions.SHARE,
+      AllOptions.BTGATEWAY,
+      AllOptions.VOICE_AUTH,
+      AllOptions.IFTTT,
+      AllOptions.FIRMWARE_UPGRADE,
+      // AllOptions.CREATE_GROUP,
+      // AllOptions.MANAGE_GROUP,
+      AllOptions.AUTO_UPGRADE,
+      AllOptions.TIMEZONE,
+      AllOptions.SECURITY,
+      AllOptions.USER_EXPERIENCE_PROGRAM
     ],
     secondOptions: [
-      secondAllOptions.AUTO_UPGRADE,
-      secondAllOptions.TIMEZONE,
-      secondAllOptions.USER_EXPERIENCE_PROGRAM
+      AllOptions.SHARE,
+      AllOptions.BTGATEWAY,
+      AllOptions.VOICE_AUTH,
+      AllOptions.IFTTT,
+      AllOptions.FIRMWARE_UPGRADE,
+      // AllOptions.CREATE_GROUP,
+      // AllOptions.MANAGE_GROUP,
+      AllOptions.AUTO_UPGRADE,
+      AllOptions.TIMEZONE,
+      AllOptions.SECURITY,
+      AllOptions.USER_EXPERIENCE_PROGRAM
     ],
     showDot: [],
-    extraOptions: {},
+    extraOptions: {}
   }
-<<<<<<< HEAD
   getCommonSetting (state) {
-=======
-  getCommonSetting(state) {
     let { modelType } = state || {};
     if (!modelType) {
       modelType = '  ';
     }
->>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
-    return {
-      [firstAllOptions.NAME]: {
+    let ret = {
+      [AllOptions.NAME]: {
         title: strings.name,
         value: state.name,
-        onPress: _ => Host.ui.openChangeDeviceName()
+        onPress: () => Host.ui.openChangeDeviceName()
       },
-      [firstAllOptions.LOCATION]: {
+      [AllOptions.LOCATION]: {
         title: strings.location,
-        onPress: _ => Host.ui.openRoomManagementPage()
+        onPress: () => Host.ui.openRoomManagementPage()
       },
-      [firstAllOptions.MEMBER_SET]: {
+      [AllOptions.MEMBER_SET]: {
         title: strings.memberSet,
-        onPress: _ => Host.ui.openPowerMultikeyPage(Device.deviceID, Device.mac)
+        onPress: () => Host.ui.openPowerMultikeyPage(Device.deviceID, Device.mac)
       },
-      [firstAllOptions.SHARE]: {
+      [AllOptions.SHARE]: {
         title: strings.share,
-        onPress: _ => Host.ui.openShareDevicePage()
+        onPress: () => Host.ui.openShareDevicePage()
       },
-      [firstAllOptions.BTGATEWAY]: {
-        title: strings.btGateway,
-        onPress: _ => Host.ui.openBtGatewayPage()
-      },
-      [firstAllOptions.VOICE_AUTH]: {
-        title: strings.voiceAuth,
-        onPress: _ => Host.ui.openVoiceCtrlDeviceAuthPage()
-      },
-      [firstAllOptions.IFTTT]: {
+      // [AllOptions.BTGATEWAY]: {
+      //   title: strings.btGateway,
+      //   onPress: () => Host.ui.openBtGatewayPage()
+      // },
+      // [AllOptions.VOICE_AUTH]: {
+      //   title: strings.voiceAuth,
+      //   onPress: () => Host.ui.openVoiceCtrlDeviceAuthPage()
+      // },
+      [AllOptions.IFTTT]: {
         title: strings.ifttt,
-        onPress: _ => Host.ui.openIftttAutoPage()
+        onPress: () => Host.ui.openIftttAutoPage()
       },
-      [firstAllOptions.HELP]: {
-        title: strings.help,
-        onPress: _ => Host.ui.openHelpPage()
+      [AllOptions.HELP]: {
+        title: strings.helpAndFeedback,
+        onPress: () => Host.ui.openHelpPage()
       },
-      [firstAllOptions.FIRMWARE_UPGRADE]: {
+      [AllOptions.FIRMWARE_UPGRADE]: {
         title: strings.firmwareUpgrade,
-        onPress: _ => this.chooseFirmwareUpgrade()
+        onPress: () => this.chooseFirmwareUpgrade()
       },
-      [firstAllOptions.CREATE_GROUP]: {
+      [AllOptions.CREATE_GROUP]: {
         title: strings[`create${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
-        onPress: _ => this.createGroup()
+        onPress: () => this.createGroup()
       },
-      [firstAllOptions.MANAGE_GROUP]: {
+      [AllOptions.MANAGE_GROUP]: {
         title: strings[`manage${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
-        onPress: _ => this.manageGroup()
+        onPress: () => this.manageGroup()
       },
-      [firstAllOptions.MORE]: {
+      [AllOptions.MORE]: {
         title: strings.more,
-        onPress: _ => this.openSubPage('MoreSetting')
-      },
-      [firstAllOptions.LEGAL_INFO]: {
-        title: strings.legalInfo,
-        onPress: _ => this.privacyAndProtocolReview()
+        onPress: () => this.openSubPage('MoreSetting')
       }
+      // [AllOptions.LEGAL_INFO]: {
+      //   title: strings.legalInfo,
+      //   onPress: () => this.privacyAndProtocolReview()
+      // }
     };
+    // 2020/4/20 锁类和保险箱类，安全设置从更多设置中移出来
+    if (['lock', 'safe-box'].indexOf(modelType) !== -1) {
+      ret[AllOptions.SECURITY] = {
+        title: strings.security,
+        onPress: () => Host.ui.openSecuritySetting()
+      };
+    }
+    return ret;
   }
   constructor(props, context) {
     super(props, context);
+    referenceReport('CommonSetting');
     this.state = {
       name: Device.name,
       showDot: Array.isArray(props.showDot) ? props.showDot : [],
@@ -381,21 +446,20 @@ export default class CommonSetting extends React.Component {
     console.log(`Device.type: ${Device.type}`);
     this.commonSetting = this.getCommonSetting(this.state);
   }
-  componentWillReceiveProps (props) {
+  UNSAFE_componentWillReceiveProps (props) {
     this.setState({ showDot: props.showDot });
   }
   /**
    * @description 点击「法律信息」，传入用户协议和隐私政策的文件地址
    */
-  privacyAndProtocolReview () {
-    const { licenseUrl, policyUrl, option } = this.props.extraOptions;
-    if (option === undefined) { // 兼容旧写法
-      Host.ui.privacyAndProtocolReview('', licenseUrl, '', policyUrl);
-    }
-    else {
-      Host.ui.previewLegalInformationAuthorization(option);
-    }
-  }
+  // privacyAndProtocolReview() {
+  //   const { licenseUrl, policyUrl, option } = this.props.extraOptions;
+  //   if (option === undefined) { // 兼容旧写法
+  //     Host.ui.privacyAndProtocolReview('', licenseUrl, '', policyUrl);
+  //   } else {
+  //     Host.ui.previewLegalInformationAuthorization(option);
+  //   }
+  // }
   /**
    * @description 点击「固件升级」，选择性跳转
    */
@@ -407,35 +471,37 @@ export default class CommonSetting extends React.Component {
     if (showUpgrade === false) {
       // 蓝牙统一OTA界面
       if (upgradePageKey === undefined) {
-        console.warn('请在 extraOptions.upgradePageKey 中填写你想跳转的固件升级页面, 传给 CommonSetting 组件');
+        if (__DEV__ && console.warn) {
+          console.warn('请在 extraOptions.upgradePageKey 中填写你想跳转的固件升级页面, 传给 CommonSetting 组件');
+        }
         return;
       }
       if (typeof upgradePageKey !== 'string') {
-        console.warn('upgradePageKey 必须是字符串, 是你在 index.js 的 RootStack 中定义的页面 key');
+        if (__DEV__ && console.warn) {
+          console.warn('upgradePageKey 必须是字符串, 是你在 index.js 的 RootStack 中定义的页面 key');
+        }
         return;
       }
-      this.removeKeyFromShowDot(firstAllOptions.FIRMWARE_UPGRADE);
+      this.removeKeyFromShowDot(AllOptions.FIRMWARE_UPGRADE);
       this.openSubPage(upgradePageKey, {}); // 跳转到开发者指定页面
-      console.warn('蓝牙统一OTA界面正在火热开发中');
-    }
-    else {
+      if (__DEV__ && console.warn) {
+        console.warn('蓝牙统一OTA界面正在火热开发中');
+      }
+    } else {
       // wifi设备固件升级
       // this.openSubPage('FirmwareUpgrade');
       // 20190516，「固件自动升级」不能做成通用功能所以去掉，
       // 那么二级页面「FirmwareUpgrade」只剩下「检查固件升级」一项，遂藏之
-      this.removeKeyFromShowDot(firstAllOptions.FIRMWARE_UPGRADE);
+      this.removeKeyFromShowDot(AllOptions.FIRMWARE_UPGRADE);
       if (Device.type === '16') { // mesh device
         Host.ui.openBleMeshDeviceUpgradePage();
-      }
-      else if (Device.type === '17' && ['light'].indexOf(modelType) !== -1) {
+      } else if (Device.type === '17' && ['light'].indexOf(modelType) !== -1) {
         // 2019/11/21 新灯组2.0需求
         // 虚拟组设备，跳v2.0固件更新页
         Host.ui.openLightGroupUpgradePage();
-      }
-      else if ([0, 1, 4, 5].includes(bleOtaAuthType)) {
+      } else if ([0, 1, 4, 5].includes(bleOtaAuthType)) {
         Host.ui.openBleCommonDeviceUpgradePage({ auth_type: bleOtaAuthType });
-      }
-      else {
+      } else {
         Host.ui.openDeviceUpgradePage();
       }
     }
@@ -443,13 +509,13 @@ export default class CommonSetting extends React.Component {
   /**
    * 创建组设备
    */
-  createGroup() {
+  createGroup () {
     Host.ui.openMeshDeviceGroupPage('add', Device.deviceID, 2);
   }
   /**
    * 管理组设备
    */
-  manageGroup() {
+  manageGroup () {
     Host.ui.openMeshDeviceGroupPage('edit', Device.deviceID, 2);
   }
   /**
@@ -462,9 +528,8 @@ export default class CommonSetting extends React.Component {
     if (index !== -1) {
       showDotTmp.splice(index, 1);
       this.setState({ showDot: showDotTmp });
-    }
-    else {
-      if (key === firstAllOptions.FIRMWARE_UPGRADE) {
+    } else {
+      if (key === AllOptions.FIRMWARE_UPGRADE) {
         this.forceUpdate();
       }
     }
@@ -473,12 +538,25 @@ export default class CommonSetting extends React.Component {
    * @description 打开二级菜单
    * @param {string} page index.js的RootStack中页面定义的key
    */
-  openSubPage (page, params = { networkInfoConfig: this.props.extraOptions.networkInfoConfig, syncDevice: this.props.extraOptions.syncDevice, secondOptions: this.props.secondOptions, excludeRequiredOptions: this.props.extraOptions.excludeRequiredOptions }) {
+  openSubPage (page, params = {
+    networkInfoConfig: this.props.extraOptions.networkInfoConfig,
+    syncDevice: this.props.extraOptions.syncDevice,
+    secondOptions: [...(this.props.firstOptions || []), ...(this.props.secondOptions || [])],
+    excludeRequiredOptions: this.props.extraOptions.excludeRequiredOptions,
+    extraOptions: this.props.extraOptions
+  }) {
+    let excludeRequiredOptions = params.excludeRequiredOptions || [];
     if (this.props.navigation) {
-      this.props.navigation.navigate(page, params);
-    }
-    else {
-      console.warn("props 'navigation' is required for CommonSetting");
+      this.props.navigation.navigate(page, {
+        ...params,
+        commonSettingStyle: this.props.commonSettingStyle,
+        // 2020/4/20 锁类和保险箱类，去掉更多设置页中的安全设置
+        excludeRequiredOptions: (['lock', 'safe-box'].indexOf(this.state.modelType) !== -1 && excludeRequiredOptions.indexOf(AllOptions.SECURITY) === -1) ? [...excludeRequiredOptions, AllOptions.SECURITY] : excludeRequiredOptions
+      });
+    } else {
+      if (__DEV__ && console.warn) {
+        console.warn("props 'navigation' is required for CommonSetting");
+      }
     }
   }
   /**
@@ -488,16 +566,13 @@ export default class CommonSetting extends React.Component {
     const { deleteDeviceMessage } = this.props.extraOptions;
     Host.ui.openDeleteDevice(deleteDeviceMessage);
   }
-<<<<<<< HEAD
-  render () {
-=======
-  componentDidMount() {
+  componentDidMount () {
     // getCountryCode().then(countryCode => {
     //   this.setState({
     //     countryCode
     //   });
     // }).catch(() => { });
-    getModelType().then(modelType => {
+    getModelType().then((modelType) => {
       this.commonSetting = this.getCommonSetting({
         ...this.state,
         modelType
@@ -507,89 +582,115 @@ export default class CommonSetting extends React.Component {
       });
     }).catch(() => { });
   }
-  render() {
+  render () {
     let { modelType } = this.state;
->>>>>>> f1b470d92c2f7e5efeba7b5a5ee29cde909919c0
     // 如果不设置英文字体，那么外文字符串将显示不全（Android）
     let fontFamily = {};
-    if (Platform.OS === 'android') fontFamily = { fontFamily: 'Kmedium' }
-    let requireKeys1 = [firstAllOptions.NAME, firstAllOptions.LOCATION];
+    if (Platform.OS === 'android') fontFamily = { fontFamily: 'Kmedium' };
+    let requireKeys1 = [AllOptions.NAME, AllOptions.LOCATION];
     // 创建组设备
     // 蓝牙单模和组设备不能创建
     if (['6', '17'].indexOf(Device.type) === -1 && ['light'].indexOf(modelType) !== -1) {
-      requireKeys1.push(firstAllOptions.CREATE_GROUP);
+      requireKeys1.push(AllOptions.CREATE_GROUP);
     }
     // 管理组设备
     if (Device.type === '17' && ['light'].indexOf(modelType) !== -1) {
-      requireKeys1.push(firstAllOptions.MANAGE_GROUP);
+      requireKeys1.push(AllOptions.MANAGE_GROUP);
     }
     const requireKeys2 = [
-      firstAllOptions.MORE,
-      firstAllOptions.HELP,
-      firstAllOptions.LEGAL_INFO
+      AllOptions.MORE,
+      AllOptions.HELP
     ];
     // 2. 去掉杂质
-    let options = this.props.firstOptions.filter(key => key && Object.values(firstOptions).includes(key));
+    let options = [...(this.props.firstOptions || []), ...(this.props.secondOptions || [])].filter((key) => key && Object.values(AllOptions).includes(key));
     // 3. 去除重复
     options = [...new Set(options)];
     // 4. 拼接必选项和可选项
     let keys = [...requireKeys1, ...options, ...requireKeys2];
-    // 4.5 所有设置项顺序固定，20190708 / SDK_10023
-    keys.sort((keyA, keyB) => firstAllOptionsWeight[keyA] - firstAllOptionsWeight[keyB]);
+    keys = [...new Set(keys)];
     // 5. 权限控制，如果是共享设备或者家庭设备，需要过滤一下
     if (Device.isOwner === false) {
-      keys = keys.filter(key => firstSharedOptions[key]);
+      keys = keys.filter((key) => firstSharedOptions[key]);
     }
     // 6. 根据设备类型进一步过滤
-    keys = keys.filter(key => !excludeOptions[key].includes(Device.type));
-    // 7. %E6%A0%B9%E6%8D%AE%E5%BC%80%E5%8F%91%E8%80%85%E7%89%B9%E6%AE%8A%E9%9C%80%E8%A6%81%EF%BC%8C%E9%9A%90%E8%97%8F%E6%9F%90%E4%BA%9B%E5%BF%85%E9%80%89%E9%A1%B9
+    keys = keys.filter((key) => !(excludeOptions[key] || []).includes(Device.type));
+    // 7. 根据开发者特殊需要，隐藏某些必选项
     const { excludeRequiredOptions } = this.props.extraOptions;
     if (excludeRequiredOptions instanceof Array) {
-      keys = keys.filter(key => !excludeRequiredOptions.includes(key));
+      keys = keys.filter((key) => !(excludeRequiredOptions || []).includes(key));
     }
+    // 4.5 所有设置项顺序固定，20190708 / SDK_10023
+    keys.sort((keyA, keyB) => {
+      return (firstAllOptionsWeight[keyA] || 0) - (firstAllOptionsWeight[keyB] || 0);
+    });
     // 8. 根据最终的设置项 keys 渲染数据
-    const items = keys.map(key => {
+    const items = keys.map((key) => {
       const item = this.commonSetting[key];
       if (item) {
         item.showDot = (this.state.showDot || []).includes(key);
         // 如果是固件升级设置项，且开发者没有传入是否显示
-        if (key === firstAllOptions.FIRMWARE_UPGRADE && !item.showDot) {
+        if (key === AllOptions.FIRMWARE_UPGRADE && !item.showDot) {
           item.showDot = Device.needUpgrade;
         }
       }
       return item;
-    }).filter(item => item); // 防空
+    }).filter((item) => {
+      return !!item;
+    }); // 防空
+    let tempCommonSettingStyle = this._getCommonSettingStyle();
     return (
       <View style={styles.container}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{strings.commonSetting}</Text>
+          <Text
+            style={[styles.title, tempCommonSettingStyle.titleStyle]}
+            allowFontScaling={tempCommonSettingStyle.allowFontScaling}>
+            {strings.commonSetting}
+          </Text>
         </View>
         <Separator style={{ marginLeft: Styles.common.padding }} />
         {
           items.map((item, index) => {
-            if (!item) return null;
+            if (!item || !item.title) return null;
             const showSeparator = index !== items.length - 1;
             return (
               <ListItem
                 key={item.title}
                 title={item.title || ''}
+                allowFontScaling={tempCommonSettingStyle.itemStyle.allowFontScaling}
+                unlimitedHeightEnable={tempCommonSettingStyle.itemStyle.unlimitedHeightEnable}
+                titleStyle={tempCommonSettingStyle.itemStyle.titleStyle}
+                subtitleStyle={tempCommonSettingStyle.itemStyle.subtitleStyle}
+                valueStyle={tempCommonSettingStyle.itemStyle.valueStyle}
+                dotStyle={tempCommonSettingStyle.itemStyle.dotStyle}
+                titleNumberOfLines={tempCommonSettingStyle.itemStyle.titleNumberOfLines}
+                subtitleNumberOfLines={tempCommonSettingStyle.itemStyle.subtitleNumberOfLines}
+                valueNumberOfLines={tempCommonSettingStyle.itemStyle.valueNumberOfLines}
                 showDot={item.showDot || false}
                 value={item.value}
                 onPress={item.onPress}
                 showSeparator={showSeparator}
+                {...getAccessibilityConfig({
+                  accessible: this.props.accessible
+                })}
               />
             );
           })
         }
         <Separator />
         {!Device.isFamily ?
-          (<View style={styles.bottomContainer}>
+          (<View style={styles.bottomContainer} {...getAccessibilityConfig({
+            accessible: this.props.accessible,
+            accessibilityRole: AccessibilityRoles.button
+          })}>
             <RkButton
               style={styles.buttonContainer}
-              onPress={_ => this.openDeleteDevice()}
+              onPress={() => this.openDeleteDevice()}
               activeOpacity={0.8}
             >
-              <Text style={[styles.buttonText, fontFamily]}>
+              <Text
+                style={[styles.buttonText, fontFamily, tempCommonSettingStyle.deleteTextStyle]}
+                allowFontScaling={tempCommonSettingStyle.allowFontScaling}
+              >
                 {Device.type === '17' && Device.isOwner ? (strings[`delete${(Device.model || '').split('.')[1][0].toUpperCase()}${(Device.model || '').split('.')[1].slice(1)}Group`]) : strings.deleteDevice}
               </Text>
             </RkButton>
@@ -597,11 +698,57 @@ export default class CommonSetting extends React.Component {
       </View>
     );
   }
-  componentWillMount () {
-    this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener(device => {
-      this.state.name = device.name;
-      this.commonSetting = this.getCommonSetting(this.state);
-      this.forceUpdate();
+  _getCommonSettingStyle () {
+    let style = {
+      allowFontScaling: true,
+      unlimitedHeightEnable: false,
+      titleStyle: {},
+      itemStyle: {
+        allowFontScaling: true,
+        unlimitedHeightEnable: false,
+        titleStyle: null,
+        subtitleStyle: null,
+        valueStyle: null,
+        dotStyle: null,
+        titleNumberOfLines: 1,
+        subtitleNumberOfLines: 2,
+        valueNumberOfLines: 1
+      },
+      deleteTextStyle: {}
+    };
+    if (this.props.commonSettingStyle) {
+      if (this.props.commonSettingStyle.hasOwnProperty('allowFontScaling')) {
+        style.allowFontScaling = this.props.commonSettingStyle.allowFontScaling;
+      }
+      if (this.props.commonSettingStyle.hasOwnProperty('unlimitedHeightEnable')) {
+        style.unlimitedHeightEnable = this.props.commonSettingStyle.unlimitedHeightEnable;
+      }
+      if (this.props.commonSettingStyle.hasOwnProperty('titleStyle')) {
+        style.titleStyle = this.props.commonSettingStyle.titleStyle;
+      }
+      if (this.props.commonSettingStyle.hasOwnProperty('itemStyle')) {
+        style.itemStyle = this.props.commonSettingStyle.itemStyle;
+      }
+      if (this.props.commonSettingStyle.hasOwnProperty('deleteTextStyle')) {
+        style.deleteTextStyle = this.props.commonSettingStyle.deleteTextStyle;
+      }
+    }
+    style.itemStyle.allowFontScaling = style.allowFontScaling;
+    style.itemStyle.unlimitedHeightEnable = style.unlimitedHeightEnable;
+    return style;
+  }
+  UNSAFE_componentWillMount () {
+    this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener((device) => {
+      // this.state.name = device.name;
+      // this.commonSetting = this.getCommonSetting(this.state);
+      // this.forceUpdate();
+      this.commonSetting = this.getCommonSetting({
+        ...this.state,
+        name: device.name
+      });
+      this.setState({
+        name: device.name
+      });
     });
   }
   componentWillUnmount () {
@@ -610,11 +757,11 @@ export default class CommonSetting extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
     // backgroundColor: '#fff'
   },
   titleContainer: {
-    height: 32,
+    minHeight: 32,
     backgroundColor: '#fff',
     justifyContent: 'center',
     paddingLeft: Styles.common.padding
@@ -625,7 +772,7 @@ const styles = StyleSheet.create({
     lineHeight: 14
   },
   bottomContainer: {
-    height: 90,
+    minHeight: 90,
     backgroundColor: Styles.common.backgroundColor,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -633,7 +780,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 1,
-    height: 55,
+    minHeight: 55,
     borderRadius: 5,
     borderWidth: 0.3,
     borderColor: 'rgba(0,0,0,0.2)',
