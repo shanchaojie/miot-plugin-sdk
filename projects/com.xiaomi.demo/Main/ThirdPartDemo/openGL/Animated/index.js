@@ -7,7 +7,7 @@ export default class AnimatedExample extends Component {
   state = {
     heightValue: new Animated.Value(200),
   };
-  componentWillMount () {
+  UNSAFE_componentWillMount () {
     let i = 0;
     this.interval = setInterval(() =>
       Animated.spring(this.state.heightValue, {

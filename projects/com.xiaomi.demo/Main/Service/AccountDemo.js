@@ -26,7 +26,7 @@ export default class AccountDemo extends React.Component {
     this.getAccountInfoList = this.getAccountInfoList.bind(this);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     Service.account.load().then(res => {
       this.setState({
         currentAccount: {

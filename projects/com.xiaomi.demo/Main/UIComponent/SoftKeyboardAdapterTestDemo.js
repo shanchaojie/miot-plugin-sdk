@@ -31,7 +31,7 @@ export default class SoftKeyboardAdapterTestDemo extends React.Component {
     };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     // 默认为false， 当弹起软键盘，整个页面会移动
     // Host.pageShouldAdapterSoftKeyboard(false).then((res)=>{
     //   console.log("res", res)

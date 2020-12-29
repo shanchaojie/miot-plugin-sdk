@@ -22,7 +22,7 @@ export default class LocalServer extends React.Component {
     })
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
   }
 
   componentWillUnmount() {

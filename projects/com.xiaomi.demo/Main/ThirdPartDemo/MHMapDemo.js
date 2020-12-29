@@ -64,7 +64,7 @@ export default class MHMapDemo extends React.Component {
     };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     if (Host.isAndroid) {
       Host.getPhoneScreenInfo().then((phoneScreenInfo) => {
         let mapHeight = phoneScreenInfo.viewHeight - headerHeight;

@@ -51,7 +51,7 @@ export default class Setting extends React.Component {
     };
   }
 
-  componentWillMount(){
+  UNSAFE_componentWillMount(){
       this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener((device)=>{
           MHGlobal.deviceName = device.name;
           // this.forceUpdate();

@@ -1,0 +1,17 @@
+@charset "UTF-8";
+body{}
+.banner{height:260px; background-image:url(../images/team/team_04.png); background-position:top center;}
+.banner > div{width: 100%; margin: 0 auto; padding:150px 0 0 0px; text-align: center; }
+.banner > div > p:nth-child(3){margin-top: 40px;}
+
+
+.product{width: 100%;background-position:center center;}
+.product > div{ height: 100%; width:100%; margin: 0 auto;position: relative;}
+
+
+body > div.product.product_4 > p{font-size: 22px; text-align: center;}
+.product_4{padding: 8%; }
+.product_4 >div{padding-top:10px;}
+.product_4 >div > p{text-align: left;}
+
+

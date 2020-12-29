@@ -32,7 +32,7 @@ export default class BluetoothApiUnitCaseDemo extends React.Component{
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
 
     this.fontFamily = {};
     if (Platform.OS === 'android') {

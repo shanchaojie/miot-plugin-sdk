@@ -4,7 +4,7 @@ import Orientation from 'react-native-orientation';
 
 export default class OrientationDemo extends React.Component {
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const init = Orientation.getInitialOrientation();
     this.setState({
       init,

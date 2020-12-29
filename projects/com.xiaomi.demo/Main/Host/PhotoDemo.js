@@ -16,7 +16,7 @@ export default class PhotoDemo extends React.Component {
     };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
 
   }
 

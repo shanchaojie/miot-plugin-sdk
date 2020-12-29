@@ -52,7 +52,7 @@ export default class TitleBar extends Component {
       super(props);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
     }
 
     render() {

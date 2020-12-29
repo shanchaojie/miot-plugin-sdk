@@ -57,7 +57,7 @@ export default class CheckBox extends Component {
     ).start();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({ isChecked: nextProps.isChecked });
   }
 

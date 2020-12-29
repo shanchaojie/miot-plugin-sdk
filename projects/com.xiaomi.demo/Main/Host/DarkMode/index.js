@@ -15,7 +15,7 @@ export default class DarkModeDemo extends React.Component {
   }
 
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     // 关闭插件所在页面native端的系统强制深色模式（Android）/miot-sdk的反色模式（iOS）,
     // 由开发者使用框架提供的接口自己适配插件的深色模式
     DarkMode.preparePluginOwnDarkMode();

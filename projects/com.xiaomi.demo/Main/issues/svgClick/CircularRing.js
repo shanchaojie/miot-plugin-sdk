@@ -71,7 +71,7 @@ export default class CircularRing extends Component {
       onShouldBlockNativeResponder: () => true,
     });
   }
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.value != this.state.temp) {
       this.state = {
         temp: nextProps.value,

@@ -18,7 +18,7 @@ const stateForTime = t => ({
 
 export default class AnimatedExample extends Component {
   state = stateForTime(0);
-  componentWillMount () {
+  UNSAFE_componentWillMount () {
     const begin = Date.now();
     this.interval = setInterval(() => this.setState(
       stateForTime(Date.now() - begin)

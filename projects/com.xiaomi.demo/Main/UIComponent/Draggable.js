@@ -52,7 +52,7 @@ export default class Draggable extends Component {
     })
   }
 
-  _onPanResponderRelease(e, gesture) {
+  _onPanResponderRelease (e, gesture) {
     // 释放后就近放置
     const { moveX, moveY, x0, y0, dx, dy } = gesture;
     console.log('release');
@@ -74,7 +74,7 @@ export default class Draggable extends Component {
   //   this._onMoveShouldSetPanResponder = true;
   // }
 
-  render() {
+  render () {
     const panStyle = {
       transform: [
         {

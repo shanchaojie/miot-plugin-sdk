@@ -88,7 +88,7 @@ export default class MainPage extends React.Component {
     this._deviceOnlineListener && this._deviceOnlineListener.remove();
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     // const licenseURL = require('../Resources/raw/license_zh.html');
     // const policyURL = require('../Resources/raw/privacy_zh.html');
     // let options = {

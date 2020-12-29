@@ -11,7 +11,7 @@ import Separator from '../Separator';
 import { AccessibilityPropTypes, AccessibilityRoles, getAccessibilityConfig } from '../../utils/accessibility-helper';
 import { referenceReport } from '../../decorator/ReportDecorator';
 let modelType = '';
-function getModelType() {
+function getModelType () {
   return new Promise((resolve) => {
     if (modelType) {
       resolve(modelType);
@@ -365,7 +365,7 @@ export default class CommonSetting extends React.Component {
     showDot: [],
     extraOptions: {}
   }
-  getCommonSetting(state) {
+  getCommonSetting (state) {
     let { modelType } = state || {};
     if (!modelType) {
       modelType = '  ';
@@ -409,11 +409,11 @@ export default class CommonSetting extends React.Component {
         onPress: () => this.chooseFirmwareUpgrade()
       },
       [AllOptions.CREATE_GROUP]: {
-        title: strings[`create${ modelType[0].toUpperCase() }${ modelType.slice(1) }Group`],
+        title: strings[`create${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
         onPress: () => this.createGroup()
       },
       [AllOptions.MANAGE_GROUP]: {
-        title: strings[`manage${ modelType[0].toUpperCase() }${ modelType.slice(1) }Group`],
+        title: strings[`manage${modelType[0].toUpperCase()}${modelType.slice(1)}Group`],
         onPress: () => this.manageGroup()
       },
       [AllOptions.MORE]: {
@@ -443,10 +443,10 @@ export default class CommonSetting extends React.Component {
       // countryCode,
       modelType
     };
-    console.log(`Device.type: ${ Device.type }`);
+    console.log(`Device.type: ${Device.type}`);
     this.commonSetting = this.getCommonSetting(this.state);
   }
-  UNSAFE_componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps (props) {
     this.setState({ showDot: props.showDot });
   }
   /**
@@ -463,7 +463,7 @@ export default class CommonSetting extends React.Component {
   /**
    * @description 点击「固件升级」，选择性跳转
    */
-  chooseFirmwareUpgrade() {
+  chooseFirmwareUpgrade () {
     // 默认是wifi设备固件升级的原生页面
     const { showUpgrade, upgradePageKey, bleOtaAuthType } = this.props.extraOptions;
     let { modelType } = this.state;
@@ -509,20 +509,20 @@ export default class CommonSetting extends React.Component {
   /**
    * 创建组设备
    */
-  createGroup() {
+  createGroup () {
     Host.ui.openMeshDeviceGroupPage('add', Device.deviceID, 2);
   }
   /**
    * 管理组设备
    */
-  manageGroup() {
+  manageGroup () {
     Host.ui.openMeshDeviceGroupPage('edit', Device.deviceID, 2);
   }
   /**
    * @description 从 this.state.showDot 移除某key，从而隐藏小红点
    * @param {string} key
    */
-  removeKeyFromShowDot(key) {
+  removeKeyFromShowDot (key) {
     const showDotTmp = [...this.state.showDot];
     const index = showDotTmp.indexOf(key);
     if (index !== -1) {
@@ -538,7 +538,7 @@ export default class CommonSetting extends React.Component {
    * @description 打开二级菜单
    * @param {string} page index.js的RootStack中页面定义的key
    */
-  openSubPage(page, params = {
+  openSubPage (page, params = {
     networkInfoConfig: this.props.extraOptions.networkInfoConfig,
     syncDevice: this.props.extraOptions.syncDevice,
     secondOptions: [...(this.props.firstOptions || []), ...(this.props.secondOptions || [])],
@@ -562,11 +562,11 @@ export default class CommonSetting extends React.Component {
   /**
    * @description 弹出「删除设备」弹窗
    */
-  openDeleteDevice() {
+  openDeleteDevice () {
     const { deleteDeviceMessage } = this.props.extraOptions;
     Host.ui.openDeleteDevice(deleteDeviceMessage);
   }
-  componentDidMount() {
+  componentDidMount () {
     // getCountryCode().then(countryCode => {
     //   this.setState({
     //     countryCode
@@ -582,7 +582,7 @@ export default class CommonSetting extends React.Component {
       });
     }).catch(() => { });
   }
-  render() {
+  render () {
     let { modelType } = this.state;
     // 如果不设置英文字体，那么外文字符串将显示不全（Android）
     let fontFamily = {};
@@ -691,14 +691,14 @@ export default class CommonSetting extends React.Component {
                 style={[styles.buttonText, fontFamily, tempCommonSettingStyle.deleteTextStyle]}
                 allowFontScaling={tempCommonSettingStyle.allowFontScaling}
               >
-                {Device.type === '17' && Device.isOwner ? (strings[`delete${ (Device.model || '').split('.')[1][0].toUpperCase() }${ (Device.model || '').split('.')[1].slice(1) }Group`]) : strings.deleteDevice}
+                {Device.type === '17' && Device.isOwner ? (strings[`delete${(Device.model || '').split('.')[1][0].toUpperCase()}${(Device.model || '').split('.')[1].slice(1)}Group`]) : strings.deleteDevice}
               </Text>
             </RkButton>
           </View>) : null}
       </View>
     );
   }
-  _getCommonSettingStyle() {
+  _getCommonSettingStyle () {
     let style = {
       allowFontScaling: true,
       unlimitedHeightEnable: false,
@@ -737,7 +737,7 @@ export default class CommonSetting extends React.Component {
     style.itemStyle.unlimitedHeightEnable = style.unlimitedHeightEnable;
     return style;
   }
-  UNSAFE_componentWillMount() {
+  UNSAFE_componentWillMount () {
     this._deviceNameChangedListener = DeviceEvent.deviceNameChanged.addListener((device) => {
       // this.state.name = device.name;
       // this.commonSetting = this.getCommonSetting(this.state);
@@ -751,7 +751,7 @@ export default class CommonSetting extends React.Component {
       });
     });
   }
-  componentWillUnmount() {
+  componentWillUnmount () {
     this._deviceNameChangedListener.remove();
   }
 }

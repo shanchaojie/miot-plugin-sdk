@@ -64,7 +64,7 @@ export default class LayoutAnimationDemo extends Component {
         UIManager.setLayoutAnimationEnabledExperimental(true)
       }
     }
-    componentWillUpdate() {
+    UNSAFE_componentWillUpdate() {
       console.log('componentWillUpdate...');
       LayoutAnimation.easeInEaseOut();
       //或者可以使用如下的自定义的动画效果

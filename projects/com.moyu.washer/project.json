@@ -1,0 +1,13 @@
+{
+  "models": "moyu.washer.s1hm",
+  "package_path": "com.moyu.washer",
+  "min_sdk_api_level": 10040,
+  "developer_id": "1133183431",
+  "version_code": 2,
+  "entrance_scene": {
+    "action_ids": [],
+    "trigger_ids": [
+      1904
+    ]
+  }
+}

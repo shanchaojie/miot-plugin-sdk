@@ -115,7 +115,7 @@ export default class MoreDialog extends Component {
      * 根据改变的 props 设置显示或隐藏
      * @param nextProps
      */
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.state.modalVisible === nextProps.visible) {
             return;
         }

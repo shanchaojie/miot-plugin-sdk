@@ -13,7 +13,7 @@ export default class CallSmartHomeAPIDemo extends React.Component {
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
       // 如果不设置英文字体，那么外文字符串将显示不全（Android）
       this.fontFamily = {};
       if (Platform.OS === 'android')  {

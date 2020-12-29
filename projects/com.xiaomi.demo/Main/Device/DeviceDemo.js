@@ -25,7 +25,7 @@ export default class DeviceDemo extends React.Component {
     };
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     console.log("componentWillMount...");
     console.log(MIOT);
     console.log(Device);

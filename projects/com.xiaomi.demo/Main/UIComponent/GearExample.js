@@ -23,7 +23,7 @@ export default class GearExample extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.options = Array.from({ length: 31 }, (v, i) => `${ i + 40 }aaaa`);
+    this.options = Array.from({ length: 31 }, (v, i) => `${i + 40}aaaa`);
     this.options1 = Array.from({ length: 6 }, (v, i) => i);
     this.state = {
       selectIndex: 0,
@@ -36,10 +36,10 @@ export default class GearExample extends React.Component {
     };
   }
 
-  render() {
+  render () {
     return (
       <View style={styles.container}>
-        <Separator/>
+        <Separator />
         <ScrollView>
           <View style={styles.contentStyle}>
             <Text style={styles.title}>
@@ -52,11 +52,11 @@ export default class GearExample extends React.Component {
               拖拽 / 点击选择档位 - 字体大小随系统变化而变化
             </Text>
             <DragGear
-              options={this.options1}
-              // normalStyle={{ width: 35 }}
-              margin={0}
+              options={[1, 2, 3]}
+              normalStyle={{ width: 30 }}
+              margin={50}
               selectColor={Styles.common.MHGreen}
-              textStyle={{ fontSize: 16, fontFamily: 'DS-Digital' }}
+              textStyle={{ fontSize: 20, fontFamily: 'DS-Digital' }}
               // maxWidth={width * 0.75}
               selectIndex={this.state.dragGearSelectIndex}
               onSelect={(index) => {
@@ -65,20 +65,21 @@ export default class GearExample extends React.Component {
                   selectIndex: index
                 });
               }}
-              containerStyle={{ backgroundColor: '#fff' }}
+              containerStyle={{ backgroundColor: '#fff', borderRadius: 30, }}
             />
             <Text style={styles.label} allowFontScaling={false}>
               拖拽 / 点击选择档位 - 字体大小不随系统变化而变化
             </Text>
             <DragGear
-              options={this.options1}
-              // normalStyle={{ width: 35 }}
-              margin={0}
+              pointerEvents='none'
+              options={[1, 2, 3, 4]}
+              normalStyle={{ width: 30 }}
+              margin={34}
               selectColor={Styles.common.MHGreen}
-              textStyle={{ fontSize: 36, fontFamily: 'DS-Digital' }}
+              textStyle={{ fontSize: 20, fontFamily: 'DS-Digital' }}
               // maxWidth={width * 0.75}
               selectIndex={this.state.dragGearSelectIndex}
-              allowFontScaling={false}
+              // allowFontScaling={false}
               numberOfLines={1}
               onSelect={(index) => {
                 this.setState({
@@ -86,13 +87,14 @@ export default class GearExample extends React.Component {
                   selectIndex: index
                 });
               }}
-              containerStyle={{ backgroundColor: '#fff' }}
+              containerStyle={{ backgroundColor: '#fff', borderRadius: 30, }}
             />
             <Text style={styles.label}>
               {`滑动选择档位(圆形滑块)`}
             </Text>
             <SlideGear
-              options={this.options}
+              //this.options
+              options={[3, 4, 5, 6, 7, 8, 9]}
               value={this.state.slideGearSelectIndex}
               disabled={this.state.disabled}
               containerStyle={{
@@ -102,16 +104,17 @@ export default class GearExample extends React.Component {
               leftTextColor="yellowgreen"
               rightTextColor="skyblue"
               onValueChange={(index) => {
+                console.log(["index>>>>>", index]);
                 this.setState({
                   slideGearSelectIndex: index,
-                  selectIndex: index
+                  selectIndex: [3, 4, 5, 6, 7, 8, 9][index]
                 });
                 this.log('onValueChange: ', index);
               }}
               onSlidingComplete={(index) => {
                 this.setState({
                   slideGearSelectIndex: index,
-                  selectIndex: index
+                  selectIndex: [3, 4, 5, 6, 7, 8, 9][index]
                 });
                 this.log('onSlidingComplete: ', index);
               }}
@@ -292,11 +295,11 @@ export default class GearExample extends React.Component {
             </Text>
             <View style={styles.demo2}>
               <Text>{'👇可以直接左右拖拽👇'}</Text>
-              <Draggable/>
+              <Draggable />
             </View>
             <View style={styles.demo2}>
               <Text>{'👇长按后可以左右拖拽👇'}</Text>
-              <LongPressDraggable/>
+              <LongPressDraggable />
             </View>
           </View>
         </ScrollView>
@@ -304,15 +307,15 @@ export default class GearExample extends React.Component {
     );
   }
 
-  callback(index) {
+  callback (index) {
     this.setState({ index, selectIndex: index });
   }
 
-  componentDidMount() {
+  componentDidMount () {
     setTimeout((_) => this.setState({ selectIndex: 6127, index: 5, disabled: false }), 1500); // 在从服务器获取到选中值之前，先禁用滑动
   }
 
-  log(...args) {
+  log (...args) {
     console.log(...args);
   }
 
@@ -323,7 +326,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   contentStyle: {
-    alignItems: 'center'
+    alignItems: 'flex-start'
   },
   demo1: {
     paddingVertical: 5,

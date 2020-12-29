@@ -26,7 +26,7 @@ export default class ClassicBle extends React.Component {
 
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
 
     this.fontFamily = {};
     if (Platform.OS === 'android') {

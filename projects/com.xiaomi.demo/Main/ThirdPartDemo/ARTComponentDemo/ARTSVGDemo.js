@@ -61,7 +61,7 @@ export default class ARTSVGDemo extends React.Component {
     }
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this._current = 1;
   }
 

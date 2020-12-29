@@ -21,7 +21,7 @@ import {
 
 
 export default class BaseComponent extends Component {
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (Platform.OS === 'android') {
             BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
         }

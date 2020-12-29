@@ -22,7 +22,7 @@ export default class XimaAudioDemo extends React.Component {
     };
   }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         Service.ximalaya.registry("1a48d5cad75f5b34a8c933edcbcad3db","f9aaa0634b685990071053600d71ed80")
     }
 
